@@ -141,7 +141,7 @@ function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
     particles: theme === "dark" ? "#ffffff" : "#6366f1",
     text: theme === "dark" ? "#ffffff" : "#2c2c2c",
     glow: theme === "dark" ? 1.5 : 0.9,
-    intensity: theme === "dark" ? 1 : 0.6
+    intensity: theme === "dark" ? 0.8 : 0.5  // Reduced base intensity
   }), [theme])
 
   // After defining colors and getAudioIntensity, compute effective post-processing parameters
@@ -149,7 +149,16 @@ function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
   const effectiveBloomThreshold = effectsConfig?.bloomThreshold ?? 0.1;
   const effectiveBloomSmoothing = effectsConfig?.bloomSmoothing ?? 0.95;
   const effectiveBloomHeight = effectsConfig?.bloomHeight ?? 300;
-  const effectiveChromaticMultiplier = effectsConfig?.chromaticMultiplier ?? 1.05;
+  const effectiveChromaticMultiplier = effectsConfig?.chromaticMultiplier ?? 0.85;  // Reduced from 1.05
+
+  // Calculate bass-weighted audio intensity for chromatic aberration
+  const chromaticAudioEffect = useMemo(() => {
+    if (!audioData) return 0;
+    // Focus on first 1/4 of frequencies (bass range)
+    const bassRange = audioData.slice(0, Math.floor(audioData.length / 4));
+    const bassIntensity = bassRange.reduce((acc, val) => acc + val, 0) / bassRange.length / 255;
+    return bassIntensity * 0.0015; // Reduced multiplier for subtler effect
+  }, [audioData]);
 
   return (
     <>
@@ -189,11 +198,11 @@ function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
           />
           <ChromaticAberration 
             offset={new THREE.Vector2(
-              (0.002 * colors.intensity + getAudioIntensity * 0.002) * effectiveChromaticMultiplier, 
-              (0.002 * colors.intensity + getAudioIntensity * 0.002) * effectiveChromaticMultiplier
+              (0.001 * colors.intensity + chromaticAudioEffect) * effectiveChromaticMultiplier, 
+              (0.001 * colors.intensity + chromaticAudioEffect) * effectiveChromaticMultiplier
             )} 
-            radialModulation={false}
-            modulationOffset={0}
+            radialModulation={true}
+            modulationOffset={0.5}
           />
         </EffectComposer>
       )}
