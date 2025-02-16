@@ -14,12 +14,10 @@ const SliderThumb = SliderPrimitive.Thumb as any;
 export function AudioControls() {
   const { 
     nextTrack, 
-    currentTrackIndex, 
     volume, 
     setVolume, 
     isPlaying, 
-    togglePlayback,
-    trackCount 
+    togglePlayback
   } = useAudioAnalyzer()
 
   const lastVolumeRef = useRef(volume)

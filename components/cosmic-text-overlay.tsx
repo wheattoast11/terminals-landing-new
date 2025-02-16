@@ -16,7 +16,6 @@ const messages = [
 ];
 
 // Create an array of all individual words from messages
-const allWords = messages.flatMap(message => message.split(" ")).filter(word => word.length > 0);
 
 // Define the data structure for a word
 interface WordData {

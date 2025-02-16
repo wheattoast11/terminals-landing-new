@@ -6,7 +6,6 @@ import { EffectComposer, Bloom, ChromaticAberration } from "@react-three/postpro
 import { CentralSingularity } from "./central-singularity"
 import { ExpandingParticleNetwork } from "./expanding-particle-network"
 import { NetworkLines } from "./network-lines"
-import { BackgroundGrid } from "./background-grid"
 import { InteractiveQuantumParticles } from "./interactive-quantum-particles"
 import { QuantumTunneling } from "./quantum-tunneling"
 import { VolumetricLight } from "./volumetric-light"

@@ -1,7 +1,6 @@
 "use client"
 
 import { useEffect, useState } from "react"
-import Link from "next/link"
 import { ThemeToggle } from "./theme-toggle"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"

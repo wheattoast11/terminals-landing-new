@@ -5,7 +5,7 @@ import { Suspense } from "react"
 import { QuantumScene } from "./quantum-scene"
 import { useTheme } from "next-themes"
 import * as THREE from 'three';
-import React, { useRef } from 'react';
+import React from 'react';
 
 export interface CanvasWrapperProps {
   mousePosition: {

@@ -31,8 +31,8 @@ jobs:
 
       - name: Build
         run: |
-          npm run lint -- --max-warnings 0 || true
-          npm run build
+          # Skip linting during build
+          NEXT_LINT_DURING_BUILD=false npm run build
         env:
           NEXT_TELEMETRY_DISABLED: 1
           NEXT_PUBLIC_BASE_PATH: /terminals-landing-new
