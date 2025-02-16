@@ -1,0 +1,148 @@
+\`\`\`prompt
+
+# v0.dev Landing Page UI - FINAL PROMPT (Iterative Refinement): Terminals - Quantum Genesis Immersive Experience (Audio Reactive - Stretch Goal)
+
+## Task
+
+Generate highly optimized and visually stunning code for a landing page UI for "Terminals," a futuristic AI platform, using Next.js 14, Tailwind CSS, and React Three Fiber. The UI must be ultra-modern, deeply immersive, artistic, and intuitively navigable, embodying a "Quantum Genesis" aesthetic inspired by generative art and subtle audio reactivity (stretch goal).
+
+**Core Visual & Experiential Goals:**
+
+  * **Quantum Genesis Aesthetic:**  Evoke a sense of emergence, interconnectedness, and futuristic elegance.  Think subtle quantum glows, dynamic and organic forms, and a deeply immersive, artistic feel.
+  * **Immersive 3D Background:** The landing page's primary visual element is a dynamic, generative 3D scene rendered with React Three Fiber and Three.js. This background should be captivating and draw users into the "Terminals" universe immediately.
+  * **Subtle Audio Reactivity (Stretch Goal):** As a stretch goal, explore incorporating subtle audio reactivity into the 3D scene, inspired by the polymathic artistry of Four Tet's music. This could involve gentle pulsations or visual shifts in response to ambient sound or microphone input.
+  * **Minimalist & Intuitive UI Overlay:**  Overlay a clean, minimalist UI for navigation and key information. The UI should be intuitive and not detract from the immersive 3D experience.
+  * **Performance Optimization:**  Prioritize performance for a smooth 60 FPS experience, leveraging WebGPU rendering where possible and efficient Three.js techniques.
+
+**Inspiration & References:**
+
+  * **Primary UI Image:**  "Terminals" UI (provided previously) -  Use this for layout structure, color palette direction, typography choices ( "terminals" logo styling, navigation placement).
+  * **Generative Art Inspiration:** Josie Kins' "AI Psychedelia" series ([josiekins.xyz](https://www.google.com/url?sa=E&source=gmail&q=https://josiekins.xyz/ai-psychedelia/magnific)) -  Aim for a similar level of artistic and generative visual complexity, focusing on emergent forms and subtle animations.
+  * **Immersive Web Design:** Examples of advanced, immersive web design ([youtube.com](https://www.google.com/url?sa=E&source=gmail&q=https://www.youtube.com/watch?v=sW6D34mckkk%26feature=youtu.be)) - Study these for techniques in creating captivating and engaging 3D web experiences.
+  * **Music Inspiration:** Four Tet -  Consider the polymathic and subtly complex nature of Four Tet's music as inspiration for the overall aesthetic and potential audio reactivity.
+
+**Detailed UI Specifications:**
+
+1.  **Color Palette:**
+
+      * Base: Dark, deep space background (`--deep-space`).
+      * Accents: Cyan (`--energy-cyan`), Purple (`--plasma-purple`), and Data Blue (`--data-blue`, `--neural-blue`, `--quantum-gray`) for energy visualization and subtle highlights.  Refer to provided CSS variables for consistency.
+
+2.  **Typography:**
+
+      * Headers: "SpaceGrotesk" font - prominent, styled as "terminals" in the UI image.
+      * Body Text: "Inter" or "JetBrains Mono" -  legible, modern, slightly futuristic.  Ensure clear font size hierarchy.
+
+3.  **Spacing & Layout:**
+
+      * Maximize whitespace to create a spacious and uncluttered feel.
+      * Minimize UI containers, allowing elements to "breathe."
+      * Refer to the "Terminals" UI image for general layout and spacing guidance.
+
+4.  **Landing Page Sections:**
+
+      * **Hero Section (Full-Screen):**
+
+          * **Headline:** "terminals" -  Display prominently, using the styling from the provided UI image.
+          * **Subtitle:** "Quantum Genesis" -  Smaller, secondary text beneath the headline. Alternatively, consider "compose. connect. create." if it fits better visually.
+          * **3D Background:**  Dominant visual element. Dynamic, generative, shader-driven 3D scene. Should be visually captivating from the moment the page loads.
+          * **Entry Button:** "Digixm" (or "enter") -  Visually distinct, inviting, and futuristic button style. Position thoughtfully within the hero section.
+
+      * **Navigation Bar (Minimal Top Nav):**
+
+          * Links: "Home", "About", "Abuiiling", "Conurus", "Calarte", "Craripie", "Bhopf", "Digixm" (adapt link text if needed to be more semantically relevant, but maintain the minimalist style).
+          * Style: Clean, top-aligned navigation bar, using the defined color palette and typography.
+          * Mobile: Implement a hamburger menu icon (initially optional, but highly recommended for good mobile UX) that toggles a sidebar menu (see `components/NavigationBar.tsx` and `components/Sidebar.tsx` from previous examples as a starting point if including sidebar).
+
+      * **Sidebar Menu (Optional, Mobile Focus):**
+
+          * Collapsible Sidebar:  For mobile navigation or potential secondary menu items.  If included, ensure it's smoothly animated and doesn't obstruct the 3D scene excessively.
+          * Example Sidebar Items (if implemented): "Dashboard", "Quantum Fields", "Simulations", "Settings" (or adapt to be more relevant to "Terminals").
+
+5.  **3D Scene Components & Effects (React Three Fiber):**
+
+      * **CanvasWrapper Component:**  Encapsulate the React Three Fiber `<Canvas>` setup.
+      * **QuantumScene Component:**  Main component to manage the Three.js scene, camera, lighting, and post-processing effects.
+      * **Generative 3D Elements (Use provided examples as starting points, but encourage creative evolution):**
+          * `CentralSingularity`: Shader-driven central element with pulsing and dynamic visual effects. (See `components/CentralSingularity.tsx` example - encourage shader refinement for "quantum glow").
+          * `ExpandingParticleNetwork`:  Dynamic particle system creating a sense of network emergence. (See `components/ExpandingParticleNetwork.tsx` -  encourage more organic/swarming particle behavior).
+          * `NetworkLines`:  Subtle network lines connecting points in 3D space to reinforce interconnectedness. (See `components/NetworkLines.tsx` - encourage subtle animation/undulation).
+          * `BackgroundGrid`:  Very subtle background grid for depth and subtle movement. (See `components/BackgroundGrid.tsx` -  keep rotation very slow and subtle).
+      * **ShaderMaterials:**  Crucial for achieving the "Quantum Genesis" aesthetic.  Utilize `ShaderMaterial` for custom visual effects (e.g., create a refined `QuantumMaterial` based on the provided example, focusing on subtle glows, dynamic displacement, and potentially color variations based on generative algorithms).
+      * **Post-Processing:**
+          * `Bloom`:  Essential for creating a subtle "quantum glow" and enhancing the dreamlike, immersive atmosphere.  Use `@react-three/postprocessing` and the `<Bloom>` effect.
+          * `DepthOfField`:  Optional -  experiment with `DepthOfField` for subtle focus effects, but use sparingly to avoid distracting from the overall scene.
+
+6.  **UI Components & Interactions:**
+
+      * **Buttons (General Style):** Minimalist button style. Subtle hover and active states. Use CSS variables (`--hover-glow`, `--active-glow`, `--focus-glow` if defined, or create similar subtle effects). Use `framer-motion` for smooth transitions on hover/click.
+      * **Cards/Widgets (For Future Expansion):** Design a minimal card component style for potential future content sections. Subtle borders and shadows (refer to `Card.tsx` example and `tailwind.config.js` for inspiration).
+
+7.  **Technical Specifications & Framework:**
+
+      * Framework: Next.js 14 (App Router - `/app` directory structure).
+      * Styling: Tailwind CSS (utilize provided `tailwind.config.js`, `postcss.config.js`, and `styles/globals.css`, especially `@layer components` for reusable styles and CSS variables).
+      * 3D Graphics: React Three Fiber (`<Canvas>`, `useFrame`, `extend`, custom components), Three.js (`THREE.*`).
+      * Animations & Interactions: `framer-motion` for UI animations and transitions.
+      * Responsiveness:  Must be fully responsive and visually appealing across desktop and mobile devices.
+
+8.  **Code Structure & Component Hierarchy (Follow this file structure precisely):**
+
+    ```
+    /app
+        layout.tsx      (Root layout - basic HTML structure, font imports, global styles)
+        page.tsx        (Main landing page component - imports CanvasWrapper, NavigationBar, etc.)
+    /components
+        CanvasWrapper.tsx     (React Three Fiber Canvas setup)
+        QuantumScene.tsx      (Main 3D scene, camera, lighting, effects, composition of 3D elements)
+        CentralSingularity.tsx (Shader-driven central singularity element)
+        ExpandingParticleNetwork.tsx (Expanding particle network system)
+        NetworkLines.tsx      (Network lines visual element)
+        BackgroundGrid.tsx    (Subtle background grid)
+        NavigationBar.tsx     (Navigation bar component)
+        Sidebar.tsx         (Optional sidebar menu component)
+    /styles
+        globals.css       (Global styles, Tailwind directives, custom CSS layers, CSS variables)
+    ```
+
+**Implementation & Iteration Plan (Phased Approach):**
+
+1.  **Phase 1: Core 3D Scene & Basic Layout:**
+
+      * Establish the basic Next.js 14 project structure with `/app` directory.
+      * Set up `CanvasWrapper.tsx` and `QuantumScene.tsx` to render a basic 3D scene (start with `CentralSingularity`, `ExpandingParticleNetwork`, `BackgroundGrid` from examples).
+      * Implement the main page layout in `app/page.tsx` to include `CanvasWrapper` and a placeholder `NavigationBar`.
+      * Configure Tailwind CSS using provided `tailwind.config.js`, `postcss.config.js`, and `globals.css`.
+
+2.  **Phase 2: Refine 3D Visuals & Shader Effects (Focus on "Quantum Genesis" Aesthetic):**
+
+      * **Crucially:**  Refine the 3D scene to achieve the desired "Quantum Genesis" aesthetic. This involves significant visual iteration and experimentation.
+      * Enhance `CentralSingularity.tsx` shader to create a more compelling "quantum glow" and dynamic displacement effect (refine `QuantumMaterial` or create a new ShaderMaterial).
+      * Improve `ExpandingParticleNetwork.tsx` to create more organic, swarming, or emergent particle behaviors. Experiment with particle colors and sizes.
+      * Add subtle animation or undulation to `NetworkLines.tsx`.
+      * Ensure `BackgroundGrid.tsx` remains very subtle and doesn't distract.
+      * Integrate `Bloom` post-processing in `QuantumScene.tsx`. Experiment with `DepthOfField` (optional).
+
+3.  **Phase 3: UI Overlay & Minimalist Styling:**
+
+      * Create the Hero Section UI within `app/page.tsx`: "terminals" headline (styled as in UI image), "Quantum Genesis" subtitle, and "Digixm" (or "enter") button.
+      * Implement `NavigationBar.tsx` with the specified navigation links and minimalist styling using Tailwind CSS.
+      * Style all UI elements (buttons, navigation links, text elements) using Tailwind CSS and CSS variables to maintain theme consistency.
+      * Implement smooth hover and active effects for buttons and navigation using `framer-motion`.
+
+4.  **Phase 4: Responsiveness, Audio Reactivity (Stretch), and Final Polish:**
+
+      * Ensure the landing page is fully responsive across desktop and mobile breakpoints. Test thoroughly on different devices.
+      * **(Stretch Goal - Audio Reactivity):** If performance allows, explore adding subtle audio reactivity to the 3D scene. This could involve making particle pulsations or shader parameters respond gently to ambient sound or microphone input (using Web Audio API and passing audio data as uniforms to shaders or particle systems - see example code for audio analysis and `QuantumParticleSystem` as inspiration, but keep it subtle and performance-conscious).
+      * Final visual polish and refinements across the entire landing page. Optimize Three.js scene for smooth 60 FPS performance.
+
+**Success Metrics (Reiterated & Emphasized):**
+
+  * **Technical Performance:**  Maintain a consistent 60 FPS frame rate. Optimize WebGPU rendering if possible and necessary for performance.
+  * **Visual Quality - "Quantum Genesis" Aesthetic Achieved:**  Landing page must be visually stunning, deeply immersive, and artistically compelling, effectively embodying the "Quantum Genesis" aesthetic.  Subtle shader effects and generative visuals are key.
+  * **User Experience - Intuitive & Engaging:** Navigation should be intuitive and minimalist.  Transitions should be seamless. The overall user experience should be one of immersion, futuristic elegance, and subtle wonder.
+  * **Code Quality - Modular & Efficient:** Code should be well-structured, modular (using React components), efficient (especially shaders and 3D rendering code), and clean.  Follow the specified component hierarchy.
+
+**Expected Outcome (Final Vision):**
+
+The expected outcome is a production-ready landing page for "Terminals" that serves as a showcase of cutting-edge web UI and immersive design. It should be visually breathtaking, deeply immersive, intuitively navigable, and effectively communicate the innovative and futuristic nature of the "Terminals" AI platform. The "Quantum Genesis" aesthetic should be evident throughout the design, achieved through a combination of generative and shader-driven 3D visuals, minimalist UI, subtle animations, and a focus on artistic execution and refined details. The landing page should leave a lasting impression of futuristic elegance and technological sophistication.
