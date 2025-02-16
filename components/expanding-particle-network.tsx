@@ -183,7 +183,9 @@ export function ExpandingParticleNetwork({ audioIntensity, colors }: ExpandingPa
   }, []);
 
   // Store a copy of initial positions for dynamic oscillation
-  const initialPositions = useMemo(() => new Float32Array(particles), [particles]);
+  const initialPositions = useMemo(() => {
+    return new Float32Array(particles);
+  }, [particles]);
 
   const colorsArray = useMemo(() => {
     const temp = [];
@@ -232,47 +234,59 @@ export function ExpandingParticleNetwork({ audioIntensity, colors }: ExpandingPa
 
   const { isAudioLoaded } = useAudioAnalyzer();
 
-  useFrame((state) => {
-    if (pointsRef.current) {
-      const t = state.clock.getElapsedTime();
-      const geometry = pointsRef.current.geometry;
-      const positions = geometry.attributes.position.array as Float32Array;
-      // Compute amplitude modulated by audioIntensity, reduced for smoother effect
-      const amplitude = 0.1 + audioIntensity * 0.02;
-      for (let i = 0; i < positions.length; i += 3) {
-        // Base oscillation with smoother motion
-        const phase = t * 0.1 + i * 0.0002;
-        const baseX = initialPositions[i] + Math.sin(phase) * amplitude;
-        const baseY = initialPositions[i + 1] + Math.sin(phase + 0.5) * amplitude;
-        const baseZ = initialPositions[i + 2] + Math.sin(phase + 1.0) * amplitude;
-        
-        // Compute normalized original direction
-        const origX = initialPositions[i], origY = initialPositions[i + 1], origZ = initialPositions[i + 2];
-        const d = Math.sqrt(origX * origX + origY * origY + origZ * origZ) || 1;
-        const nx = origX / d, ny = origY / d, nz = origZ / d;
-        
-        // Additional flare displacement for fluid dynamics with slower variation
-        const flare = 0.015 * audioIntensity * Math.sin(t * 0.3 + i * 0.0002);
-        
-        // Added capillary ripple effect
-        const rippleX = Math.sin(t * 3 + i) * 0.003 * audioIntensity;
-        const rippleY = Math.sin(t * 3 + i + 1) * 0.003 * audioIntensity;
-        const rippleZ = Math.sin(t * 3 + i + 2) * 0.003 * audioIntensity;
-        
-        // Update positions with base oscillation, flare and ripple
-        positions[i] = baseX + nx * (flare * d) + rippleX;
-        positions[i + 1] = baseY + ny * (flare * d) + rippleY;
-        positions[i + 2] = baseZ + nz * (flare * d) + rippleZ;
-      }
-      geometry.attributes.position.needsUpdate = true;
-      pointsRef.current.rotation.x = t * 0.02;
-      pointsRef.current.rotation.y = t * 0.03;
-
-      // Apply a subtle pulsing effect to the particle system using smooth interpolation
-      const targetScale = 1 + 0.01 * Math.sin(t * 0.1) * audioIntensity;
-      pointsRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
+  useFrame((state, delta) => {
+    if (!pointsRef.current) return;
+    const t = state.clock.getElapsedTime();
+    const geometry = pointsRef.current.geometry;
+    const positions = geometry.attributes.position.array as Float32Array;
+    // Compute amplitude modulated by audioIntensity, reduced for smoother effect
+    const amplitude = 0.1 + audioIntensity * 0.02;
+    for (let i = 0; i < positions.length; i += 3) {
+      // Base oscillation with smoother motion
+      const phase = t * 0.1 + i * 0.0002;
+      const baseX = initialPositions[i] + Math.sin(phase) * amplitude;
+      const baseY = initialPositions[i + 1] + Math.sin(phase + 0.5) * amplitude;
+      const baseZ = initialPositions[i + 2] + Math.sin(phase + 1.0) * amplitude;
+      
+      // Compute normalized original direction
+      const origX = initialPositions[i], origY = initialPositions[i + 1], origZ = initialPositions[i + 2];
+      const d = Math.sqrt(origX * origX + origY * origY + origZ * origZ) || 1;
+      const nx = origX / d, ny = origY / d, nz = origZ / d;
+      
+      // Additional flare displacement for fluid dynamics with slower variation
+      const flare = 0.015 * audioIntensity * Math.sin(t * 0.3 + i * 0.0002);
+      
+      // Added capillary ripple effect
+      const rippleX = Math.sin(t * 3 + i) * 0.003 * audioIntensity;
+      const rippleY = Math.sin(t * 3 + i + 1) * 0.003 * audioIntensity;
+      const rippleZ = Math.sin(t * 3 + i + 2) * 0.003 * audioIntensity;
+      
+      // Update positions with base oscillation, flare and ripple
+      positions[i] = baseX + nx * (flare * d) + rippleX;
+      positions[i + 1] = baseY + ny * (flare * d) + rippleY;
+      positions[i + 2] = baseZ + nz * (flare * d) + rippleZ;
     }
+    geometry.attributes.position.needsUpdate = true;
+    pointsRef.current.rotation.x = t * 0.02;
+    pointsRef.current.rotation.y = t * 0.03;
+
+    // Apply a subtle pulsing effect to the particle system using smooth interpolation
+    const targetScale = 1 + 0.01 * Math.sin(t * 0.1) * audioIntensity;
+    pointsRef.current.scale.lerp(new THREE.Vector3(targetScale, targetScale, targetScale), 0.1);
   });
+
+  useEffect(() => {
+    if (!pointsRef.current) return;
+    const points = pointsRef.current.geometry;
+    if (points) {
+      points.dispose();
+    }
+    if (Array.isArray(pointsRef.current.material)) {
+      pointsRef.current.material.forEach(mat => mat.dispose());
+    } else if (pointsRef.current.material) {
+      pointsRef.current.material.dispose();
+    }
+  }, []);
 
   useEffect(() => {
     return () => {

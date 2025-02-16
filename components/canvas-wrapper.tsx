@@ -7,8 +7,11 @@ import { useTheme } from "next-themes"
 import * as THREE from 'three';
 import React, { useRef } from 'react';
 
-interface CanvasWrapperProps {
-  mousePosition: { x: number; y: number }
+export interface CanvasWrapperProps {
+  mousePosition: {
+    x: number;
+    y: number;
+  };
 }
 
 function CameraEffects({ mousePosition }: { mousePosition: { x: number; y: number } }) {
@@ -60,7 +63,7 @@ function CameraEffects({ mousePosition }: { mousePosition: { x: number; y: numbe
   return null;
 }
 
-export function CanvasWrapper({ mousePosition }: CanvasWrapperProps) {
+export const CanvasWrapper: React.FC<CanvasWrapperProps> = ({ mousePosition }) => {
   const { theme } = useTheme()
 
   const stableMousePosition = React.useMemo(() => ({ x: mousePosition.x, y: mousePosition.y }), [mousePosition.x, mousePosition.y]);

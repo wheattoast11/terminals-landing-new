@@ -2,10 +2,15 @@
 
 import React, { useEffect, useState } from 'react'
 import { motion } from "framer-motion"
-import { CanvasWrapper } from "@/components/canvas-wrapper"
 import { NavigationBar } from "@/components/navigation-bar"
-import { Button } from "@/components/ui/button"
 import { CosmicTextOverlay } from "@/components/cosmic-text-overlay"
+import dynamic from 'next/dynamic'
+import { Suspense } from 'react'
+import type { CanvasWrapper as CanvasWrapperType } from '@/components/canvas-wrapper'
+
+const CanvasWrapper = dynamic<Parameters<typeof CanvasWrapperType>[0]>(() => import('@/components/canvas-wrapper').then(mod => mod.CanvasWrapper), {
+  ssr: false
+})
 
 export default function Page() {
   const [mousePosition, setMousePosition] = useState({ x: 0, y: 0 })
@@ -26,7 +31,9 @@ export default function Page() {
     <div className="relative min-h-screen w-full bg-background text-foreground overflow-hidden">
       {/* 3D Background */}
       <div className="fixed inset-0 z-0">
-        <CanvasWrapper mousePosition={mousePosition} />
+        <Suspense fallback={<div>Loading...</div>}>
+          <CanvasWrapper mousePosition={mousePosition} />
+        </Suspense>
       </div>
 
       {/* Content Overlay */}
