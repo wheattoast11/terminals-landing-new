@@ -4,16 +4,26 @@ import "./globals.css"
 import { ThemeProvider } from "@/components/theme-provider"
 import { AudioAnalyzerProvider } from "@/components/audio-analyzer"
 
-const inter = Inter({ subsets: ["latin"] })
+const inter = Inter({ 
+  subsets: ["latin"],
+  display: 'swap',
+  preload: true,
+  variable: '--font-inter'
+})
+
 const spaceGrotesk = Space_Grotesk({ 
   subsets: ['latin'],
   display: 'swap',
+  preload: true,
   variable: '--font-space-grotesk'
 })
 
 export const metadata: Metadata = {
   title: "Terminals",
   description: "Interactive Audio Experience",
+  icons: {
+    icon: '/favicon.ico'
+  }
 }
 
 export default function RootLayout({
@@ -22,7 +32,7 @@ export default function RootLayout({
   children: React.ReactNode
 }) {
   return (
-    <html lang="en" className={spaceGrotesk.variable} suppressHydrationWarning>
+    <html lang="en" className={`${spaceGrotesk.variable} ${inter.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />

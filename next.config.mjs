@@ -1,11 +1,21 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   output: 'export',
+  basePath: '/terminals-landing-new',
+  assetPrefix: '/terminals-landing-new/',
   images: {
     unoptimized: true,
   },
-  basePath: process.env.NEXT_PUBLIC_BASE_PATH || '',
-  assetPrefix: process.env.NEXT_PUBLIC_BASE_PATH || '',
+  // This is important for GitHub Pages to work properly
+  trailingSlash: true,
+  // Ensure we handle fonts and other static assets correctly
+  webpack: (config) => {
+    config.module.rules.push({
+      test: /\.(woff|woff2|eot|ttf|otf)$/i,
+      type: 'asset/resource',
+    });
+    return config;
+  },
 }
 
 export default nextConfig;

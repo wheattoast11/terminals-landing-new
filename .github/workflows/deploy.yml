@@ -27,15 +27,16 @@ jobs:
           npm cache clean --force
           rm -rf node_modules
           rm -rf .next
+          rm -rf out
           npm ci
 
       - name: Build
         run: |
           # Skip linting during build
           NEXT_LINT_DURING_BUILD=false npm run build
+          touch out/.nojekyll  # Prevent GitHub Pages from processing with Jekyll
         env:
           NEXT_TELEMETRY_DISABLED: 1
-          NEXT_PUBLIC_BASE_PATH: /terminals-landing-new
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
