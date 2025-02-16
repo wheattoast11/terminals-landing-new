@@ -3,7 +3,7 @@ name: Deploy to GitHub Pages
 on:
   push:
     branches:
-      - master  # Or 'master' if that's your main branch
+      - master
 
 permissions:
   contents: read
@@ -20,22 +20,22 @@ jobs:
       - name: Setup Node
         uses: actions/setup-node@v4
         with:
-          node-version: '20' # Or your desired Node.js version
-          cache: 'npm' # Cache dependencies for faster builds
+          node-version: '20'
+          cache: 'npm'
 
       - name: Install dependencies
-        run: npm install
+        run: npm ci
 
       - name: Build
-        run: npm run build  # This should run 'next build'
-
-      - name: Static Export
-        run: npm run export # This runs 'next export'
+        run: npm run build
+        env:
+          NEXT_TELEMETRY_DISABLED: 1
+          NEXT_PUBLIC_BASE_PATH: /terminals-landing-new
 
       - name: Upload artifact
         uses: actions/upload-pages-artifact@v3
         with:
-          path: ./out # Upload the 'out' directory
+          path: ./out
 
   deploy:
     environment:
