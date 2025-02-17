@@ -22,10 +22,36 @@ const LetterParticles = React.memo(function LetterParticles({ colors, numParticl
       canvas.height = 64;
       const ctx = canvas.getContext("2d");
       if (ctx) {
+        // Clear with transparent background
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        
+        // Add a more subtle glow effect
+        const gradient = ctx.createRadialGradient(
+          canvas.width / 2,
+          canvas.height / 2,
+          0,
+          canvas.width / 2,
+          canvas.height / 2,
+          canvas.width / 2
+        );
+        gradient.addColorStop(0, colors?.text || "#ffffff");
+        gradient.addColorStop(0.4, "rgba(255,255,255,0.2)");
+        gradient.addColorStop(1, "rgba(255,255,255,0)");
+        
+        // Draw the letter with reduced weight and glow
         ctx.fillStyle = colors?.text || "#ffffff";
-        ctx.font = "48px sans-serif";
+        ctx.font = "normal 42px sans-serif";
         ctx.textAlign = "center";
         ctx.textBaseline = "middle";
+        
+        // Add subtler glow
+        ctx.globalAlpha = 0.2;
+        ctx.filter = 'blur(3px)';
+        ctx.fillText(letter, canvas.width / 2, canvas.height / 2);
+        
+        // Draw sharp letter on top with reduced opacity
+        ctx.globalAlpha = 0.8;
+        ctx.filter = 'none';
         ctx.fillText(letter, canvas.width / 2, canvas.height / 2);
       }
       textures[letter] = new THREE.CanvasTexture(canvas);
@@ -77,7 +103,12 @@ const LetterParticles = React.memo(function LetterParticles({ colors, numParticl
     <group ref={groupRef}>
       {particles.map((p, i) => (
         <sprite key={i} position={[p.position.x, p.position.y, p.position.z]} scale={[p.scale, p.scale, p.scale]}>
-          <spriteMaterial map={p.texture} transparent />
+          <spriteMaterial 
+            map={p.texture} 
+            transparent 
+            depthWrite={false}
+            blending={THREE.AdditiveBlending}
+          />
         </sprite>
       ))}
     </group>

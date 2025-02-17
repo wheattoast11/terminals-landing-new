@@ -1,13 +1,13 @@
 "use client"
 
-import { useEffect, useState } from "react"
+import { useEffect, useState, useMemo } from "react"
 import { ThemeToggle } from "./theme-toggle"
 import { useTheme } from "next-themes"
 import { motion, AnimatePresence } from "framer-motion"
 import { AudioControls } from "./audio-controls"
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
-import React, { useRef, useMemo } from "react"
+import React, { useRef } from "react"
 import { Sphere } from "@react-three/drei"
 import Image from "next/image"
 
@@ -247,70 +247,115 @@ function DynamicNetworkLines({ audioIntensity, colors }: { audioIntensity: numbe
 
 // Enhanced Understanding Network - For /understand visualization
 function EnhancedNetworkLines({ audioIntensity, colors }: { audioIntensity: number, colors: any }) {
-  const [nodes] = useState(() => {
-    return Array(8).fill(0).map(() => ({
-      position: new THREE.Vector3(
-        (Math.random() - 0.5) * 2,
-        (Math.random() - 0.5) * 2,
-        (Math.random() - 0.5)
-      ),
-      pulsePhase: Math.random() * Math.PI * 2,
-      rotationSpeed: Math.random() * 0.2 + 0.1,
-      scale: 1
-    }));
-  });
+  const groupRef = useRef<THREE.Group>(null);
+  const lineRef = useRef<THREE.LineSegments>(null);
+  
+  const nodes = useMemo(() => {
+    const innerCount = 5;
+    const outerCount = 8;
+    const nodes = [];
+    const connections: [number, number][] = [];
+    
+    // Create nodes with initial positions and motion parameters
+    for (let i = 0; i < innerCount; i++) {
+      nodes.push({
+        ring: 'inner',
+        index: i,
+        x: 0, y: 0, z: 0,
+        speed: 0.3 + Math.random() * 0.2,
+        phase: Math.random() * Math.PI * 2,
+        verticalPhase: Math.random() * Math.PI * 2
+      });
+    }
+    for (let i = 0; i < outerCount; i++) {
+      nodes.push({
+        ring: 'outer',
+        index: i,
+        x: 0, y: 0, z: 0,
+        speed: 0.2 + Math.random() * 0.15,
+        phase: Math.random() * Math.PI * 2,
+        verticalPhase: Math.random() * Math.PI * 2
+      });
+    }
+    
+    // Create connections
+    for (let i = 0; i < nodes.length; i++) {
+      for (let j = i + 1; j < nodes.length; j++) {
+        if (nodes[i].ring === nodes[j].ring || Math.random() > 0.5) {
+          connections.push([i, j]);
+        }
+      }
+    }
+    
+    return { nodes, connections };
+  }, []);
 
   useFrame((state) => {
+    if (!groupRef.current || !lineRef.current) return;
     const t = state.clock.getElapsedTime();
+
+    const positions = new Float32Array(nodes.connections.length * 6);
     
-    nodes.forEach((node, i) => {
-      // Automatic rotation
-      const radius = 1 + Math.sin(t * 0.2 + i) * 0.2;
-      const angle = t * node.rotationSpeed + i * (Math.PI * 2 / 8);
+    nodes.nodes.forEach((node) => {
+      const isInner = node.ring === 'inner';
+      const radius = isInner ? 0.4 : 1.0;
       
-      node.position.x = Math.cos(angle) * radius * 0.5;
-      node.position.y = Math.sin(angle) * radius * 0.5;
-      node.position.z = Math.sin(t * 0.3 + i) * 0.2;
-      
-      // Pulse effect
-      node.scale = 1 + Math.sin(t * 2 + node.pulsePhase) * 0.3 * (1 + audioIntensity * 0.3);
+      // Calculate position based on time and node parameters
+      const angle = t * node.speed + node.phase;
+      node.x = Math.cos(angle) * radius;
+      node.y = Math.sin(t * 0.2 + node.verticalPhase) * 0.2;
+      node.z = Math.sin(angle) * radius;
     });
+
+    nodes.connections.forEach(([i, j], index) => {
+      const from = nodes.nodes[i];
+      const to = nodes.nodes[j];
+      positions[index * 6] = from.x;
+      positions[index * 6 + 1] = from.y;
+      positions[index * 6 + 2] = from.z;
+      positions[index * 6 + 3] = to.x;
+      positions[index * 6 + 4] = to.y;
+      positions[index * 6 + 5] = to.z;
+    });
+
+    lineRef.current.geometry.setAttribute(
+      'position',
+      new THREE.Float32BufferAttribute(positions, 3)
+    );
+
+    // Add gentle group rotation
+    groupRef.current.rotation.y = Math.sin(t * 0.1) * 0.2;
   });
 
   return (
-    <group>
-      {nodes.map((node, i) => (
-        <group key={i}>
-          <Sphere 
-            position={[node.position.x, node.position.y, node.position.z]}
-            scale={node.scale}
-            args={[0.1, 32, 32]}
-          >
-            <meshStandardMaterial
-              color={colors.primary}
-              emissive={colors.primary}
-              emissiveIntensity={colors.glow * node.scale}
-              transparent
-              opacity={0.9}
-            />
-          </Sphere>
-          {nodes.slice(i + 1).map((otherNode, j) => {
-            const distance = node.position.distanceTo(otherNode.position);
-            if (distance < 1) {
-              const opacity = (1 - distance) * 0.5 * (1 + audioIntensity * 0.3);
-              return (
-                <NetworkLine
-                  key={`${i}-${j}`}
-                  start={node.position}
-                  end={otherNode.position}
-                  color={colors.primary}
-                  opacity={opacity}
-                />
-              );
-            }
-            return null;
-          })}
-        </group>
+    <group ref={groupRef}>
+      <lineSegments ref={lineRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={nodes.connections.length * 2}
+            array={new Float32Array(nodes.connections.length * 6)}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <lineBasicMaterial
+          color={colors.primary}
+          transparent
+          opacity={0.3 + audioIntensity * 0.2}
+          blending={THREE.AdditiveBlending}
+        />
+      </lineSegments>
+      {nodes.nodes.map((node, i) => (
+        <mesh key={i} position={[node.x, node.y, node.z]}>
+          <sphereGeometry args={[node.ring === 'inner' ? 0.06 : 0.04, 16, 16]} />
+          <meshStandardMaterial
+            color={colors.primary}
+            emissive={colors.primary}
+            emissiveIntensity={colors.glow * (node.ring === 'inner' ? 1.2 : 0.8)}
+            transparent
+            opacity={0.9}
+          />
+        </mesh>
       ))}
     </group>
   );
@@ -318,7 +363,7 @@ function EnhancedNetworkLines({ audioIntensity, colors }: { audioIntensity: numb
 
 // Concept Visualization Component
 function ConceptVisualization({ concept, theme }: { concept: string; theme: string }) {
-  const baseColors = {
+  const baseColors = useMemo(() => ({
     primary: theme === 'dark' ? '#ffffff' : '#000000',
     secondary: theme === 'dark' ? '#ffffff' : '#000000',
     background: theme === 'dark' ? '#000000' : '#ffffff',
@@ -326,104 +371,34 @@ function ConceptVisualization({ concept, theme }: { concept: string; theme: stri
     text: theme === 'dark' ? '#ffffff' : '#000000',
     glow: 0.5,
     intensity: 0.5
-  };
+  }), [theme]);
 
-  // Reuse existing components based on the concept
-  switch(concept) {
-    case "/emergence":
-      return (
-        <div className="h-[240px] w-full relative overflow-hidden rounded-lg">
-          <Canvas camera={{ position: [0, 0, 2] }}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} />
-            <CentralSingularity 
-              audioIntensity={0.5}
-              colors={{
-                ...baseColors,
-                glow: 0.8,
-                intensity: 0.7
-              }}
-            />
-          </Canvas>
-        </div>
-      );
-    case "/swarms":
-      return (
-        <div className="h-[240px] w-full relative overflow-hidden rounded-lg">
-          <Canvas camera={{ position: [0, 0, 2] }}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} />
-            <ExpandingParticleNetwork 
-              audioIntensity={0.5}
-              colors={{
-                ...baseColors,
-                glow: 0.6,
-                intensity: 0.8
-              }}
-            />
-          </Canvas>
-        </div>
-      );
-    case "/network":
-      return (
-        <div className="h-[240px] w-full relative overflow-hidden rounded-lg">
-          <Canvas camera={{ position: [0, 0, 2] }}>
-            <ambientLight intensity={0.3} />
-            <pointLight position={[10, 10, 10]} />
-            <DynamicNetworkLines 
-              audioIntensity={0.5} 
-              colors={{
-                ...baseColors,
-                glow: 0.7,
-                intensity: 0.6
-              }} 
-            />
-          </Canvas>
-        </div>
-      );
-    case "/experience":
-      return (
-        <div className="h-[240px] w-full relative overflow-hidden rounded-lg">
-          <Canvas camera={{ position: [0, 0, 2] }}>
-            <ambientLight intensity={0.5} />
-            <pointLight position={[10, 10, 10]} />
-            <DimensionalTransform 
-              audioIntensity={0.5}
-              colors={{
-                ...baseColors,
-                glow: 0.6,
-                intensity: 0.7
-              }}
-            />
-          </Canvas>
-        </div>
-      );
-    case "/understand":
-      return (
-        <div className="h-[240px] w-full relative overflow-hidden rounded-lg">
-          <Canvas camera={{ position: [0, 0, 2] }}>
-            <ambientLight intensity={0.4} />
-            <pointLight position={[10, 10, 10]} />
-            <EnhancedNetworkLines 
-              audioIntensity={0.8}
-              colors={{
-                ...baseColors,
-                glow: 0.9,
-                intensity: 0.8
-              }} 
-            />
-          </Canvas>
-        </div>
-      );
-    default:
-      return (
-        <div className="h-[240px] w-full relative overflow-hidden rounded-lg">
-          <Canvas camera={{ position: [0, 0, 2] }}>
-            <SubtleParticles />
-          </Canvas>
-        </div>
-      );
-  }
+  const visualComponent = useMemo(() => {
+    switch(concept) {
+      case "/emergence":
+        return <CentralSingularity audioIntensity={0.5} colors={baseColors} />;
+      case "/swarms":
+        return <ExpandingParticleNetwork audioIntensity={0.5} colors={baseColors} />;
+      case "/network":
+        return <DynamicNetworkLines audioIntensity={0.5} colors={baseColors} />;
+      case "/experience":
+        return <DimensionalTransform audioIntensity={0.5} colors={baseColors} />;
+      case "/understand":
+        return <EnhancedNetworkLines audioIntensity={0.5} colors={baseColors} />;
+      default:
+        return <SubtleParticles />;
+    }
+  }, [concept, baseColors]);
+
+  return (
+    <div className="h-[240px] w-full relative overflow-hidden rounded-lg">
+      <Canvas camera={{ position: [0, 0, 2] }}>
+        <ambientLight intensity={0.5} />
+        <pointLight position={[10, 10, 10]} />
+        {visualComponent}
+      </Canvas>
+    </div>
+  );
 }
 
 // DimensionalTransform Component - Shows 2D to 3D transformation
@@ -729,28 +704,17 @@ export function NavigationBar() {
                     onMouseEnter={() => setHoveredItem(item.label)}
                     onMouseLeave={() => setHoveredItem(null)}
                     aria-hidden="true"
-                    title=""
                   >
-                    <span className="text-sm font-mono transition-colors relative" title="">
+                    <span className={`text-sm font-mono transition-colors relative ${
+                      hoveredItem === item.label ? 'text-primary' : ''
+                    }`}>
                       {item.label}
-                      <div className="absolute -inset-x-2 -inset-y-1 bg-primary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
+                      <div className={`absolute -inset-x-2 -inset-y-1 bg-primary/5 rounded-lg transition-all duration-300 ${
+                        hoveredItem === item.label 
+                          ? 'opacity-100 shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]' 
+                          : 'opacity-0'
+                      }`} />
                     </span>
-                    {hoveredItem === item.label && (
-                      <div 
-                        className="absolute -top-10 left-1/2 transform -translate-x-1/2 px-3 py-1.5 bg-background/95 border border-primary/20 rounded-lg text-xs font-mono shadow-lg"
-                        aria-hidden="true"
-                        title=""
-                      >
-                        <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/5 via-transparent to-primary/5" />
-                        <div className="absolute inset-0 rounded-lg backdrop-blur-sm" />
-                        <div className="relative z-10">
-                          <span className="text-primary/90 drop-shadow-sm">
-                            {descriptions[item.label]?.caption || "Coming soon"}
-                          </span>
-                          <div className="absolute inset-0 bg-primary/10 blur-xl opacity-50" />
-                        </div>
-                      </div>
-                    )}
                   </div>
                 ))}
               </div>

@@ -8,6 +8,8 @@
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
   text-rendering: optimizeLegibility;
+  height: 100vh;
+  overflow: hidden;
 }
 
 /* Prevent color separation in WebGL canvas */
@@ -25,13 +27,21 @@ body {
   -webkit-transform: translateZ(0);
   -webkit-backface-visibility: hidden;
   -webkit-perspective: 1000;
-  overflow: hidden; /* Prevent scrollbar from affecting layout */
+  height: 100vh;
+  overflow: hidden;
+  position: fixed;
+  width: 100%;
 }
 
 @layer utilities {
   .text-balance {
     text-wrap: balance;
   }
+}
+
+.hover-card {
+  height: calc(100vh - 7rem);
+  overflow-y: auto;
 }
 
 @layer base {

@@ -145,14 +145,50 @@ void main() {
 uniform float uTime;
 varying vec2 vUv;
 
+// Improved noise function for better nebula effect
+float noise(vec2 p) {
+    return fract(sin(dot(p.xy ,vec2(12.9898,78.233))) * 43758.5453);
+}
+
+float fbm(vec2 p) {
+    float value = 0.0;
+    float amplitude = 0.5;
+    float frequency = 0.0;
+    for(int i = 0; i < 4; i++) { // Keep iterations low for performance
+        value += amplitude * noise(p);
+        p *= 2.0;
+        amplitude *= 0.5;
+    }
+    return value;
+}
+
 void main() {
-  vec3 color = vec3(0.0);
-  float streak1 = sin(vUv.x * 50.0 + uTime) * 0.1;
-  float streak2 = sin(vUv.y * 50.0 - uTime) * 0.1;
-  float brightness = streak1 + streak2;
-  color += vec3(0.0, 0.0, 0.2) * brightness;
-  color += vec3(0.2, 0.0, 0.2) * abs(sin(vUv.x * 10.0 + uTime));
-  gl_FragColor = vec4(color, 0.03);
+    vec2 uv = vUv * 2.0 - 1.0;
+    float dist = length(uv);
+    
+    // Create subtle edge glow
+    float edgeGlow = smoothstep(0.8, 1.5, dist);
+    
+    // Nebula effect
+    float nebula = fbm(uv + uTime * 0.05);
+    nebula *= smoothstep(1.2, 0.4, dist); // Fade out towards center
+    
+    // Subtle color variations
+    vec3 nebulaColor = mix(
+        vec3(0.02, 0.0, 0.05),  // Deep purple
+        vec3(0.0, 0.02, 0.04),  // Deep blue
+        nebula
+    );
+    
+    // Add very subtle cyan tint to edges
+    nebulaColor += vec3(0.0, 0.01, 0.015) * edgeGlow;
+    
+    // Time-based pulsing
+    float pulse = sin(uTime * 0.2) * 0.5 + 0.5;
+    nebulaColor *= 0.8 + pulse * 0.2;
+    
+    // Combine everything with very low opacity
+    gl_FragColor = vec4(nebulaColor, 0.015 + nebula * 0.01);
 }`}
         transparent
         blending={THREE.AdditiveBlending}
@@ -209,6 +245,7 @@ export function ExpandingParticleNetwork({ audioIntensity, colors }: ExpandingPa
     canvas.height = size;
     const context = canvas.getContext("2d");
     if (context) {
+      // Use a smoother gradient with more stops for better spherical appearance
       const gradient = context.createRadialGradient(
         size / 2,
         size / 2,
@@ -217,12 +254,36 @@ export function ExpandingParticleNetwork({ audioIntensity, colors }: ExpandingPa
         size / 2,
         size / 2
       );
-      gradient.addColorStop(0, "rgba(255,255,255,1)");
-      gradient.addColorStop(0.2, "rgba(255,255,255,1)");
-      gradient.addColorStop(0.4, "rgba(128,128,128,0.6)");
-      gradient.addColorStop(1, "rgba(0,0,0,0)");
+      gradient.addColorStop(0, "rgb(255, 255, 255)");
+      gradient.addColorStop(0.15, "rgba(251, 243, 210, 0.95)");
+      gradient.addColorStop(0.35, "rgba(177, 255, 254, 0.7)");
+      gradient.addColorStop(0.5, "rgba(255, 83, 83, 0.67)");
+      gradient.addColorStop(0.65, "rgba(255,255,255,0.2)");
+      gradient.addColorStop(1, "rgba(40, 0, 73, 0.53)");
+      
+      // Clear the canvas first
+      context.clearRect(0, 0, size, size);
+      
+      // Create base sphere shape
+      context.beginPath();
+      context.arc(size / 2, size / 2, size / 2, 0, Math.PI * 2);
       context.fillStyle = gradient;
-      context.fillRect(0, 0, size, size);
+      context.fill();
+      
+      // Add highlight for 3D effect
+      const highlightGradient = context.createRadialGradient(
+        size * 0.4,
+        size * 0.4,
+        0,
+        size * 0.35,
+        size * 0.35,
+        size * 0.4
+      );
+      highlightGradient.addColorStop(0, "rgba(255,255,255,0.4)");
+      highlightGradient.addColorStop(0.5, "rgba(193, 9, 129, 0.3)");
+      highlightGradient.addColorStop(1, "rgba(62, 206, 225, 0.19)");
+      context.fillStyle = highlightGradient;
+      context.fill();
     }
     const texture = new THREE.CanvasTexture(canvas);
     texture.needsUpdate = true;
@@ -320,14 +381,15 @@ export function ExpandingParticleNetwork({ audioIntensity, colors }: ExpandingPa
           <bufferAttribute attach="attributes-color" count={colorsArray.length / 3} array={colorsArray} itemSize={3} />
         </bufferGeometry>
         <pointsMaterial
-          size={0.02}
+          size={0.025}
           vertexColors
           transparent
-          opacity={0.8}
+          opacity={0.7 + audioIntensity * 0.1}
           sizeAttenuation
           blending={THREE.AdditiveBlending}
           map={particleTexture}
-          alphaTest={0.01}
+          alphaTest={0.001}
+          depthWrite={false}
         />
       </points>
     </group>

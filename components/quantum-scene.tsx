@@ -120,7 +120,13 @@ function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
 
   useFrame((state) => {
     if (groupRef.current) {
-      groupRef.current.rotation.y = state.clock.getElapsedTime() * 0.05
+      // Continuous rotation regardless of hover state
+      const t = state.clock.getElapsedTime();
+      groupRef.current.rotation.y = t * 0.05;
+      
+      // Add subtle oscillation for more dynamic movement
+      groupRef.current.rotation.x = Math.sin(t * 0.1) * 0.02;
+      groupRef.current.position.y = Math.sin(t * 0.2) * 0.05;
     }
   })
 

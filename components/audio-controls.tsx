@@ -6,10 +6,10 @@ import { useAudioAnalyzer } from "./audio-analyzer"
 import { Button } from "@/components/ui/button"
 import * as SliderPrimitive from '@radix-ui/react-slider'
 
-const SliderRoot = SliderPrimitive.Root as any;
-const SliderTrack = SliderPrimitive.Track as any;
-const SliderRange = SliderPrimitive.Range as any;
-const SliderThumb = SliderPrimitive.Thumb as any;
+const SliderRoot = SliderPrimitive.Root
+const SliderTrack = SliderPrimitive.Track
+const SliderRange = SliderPrimitive.Range
+const SliderThumb = SliderPrimitive.Thumb
 
 export function AudioControls() {
   const { 
@@ -21,30 +21,15 @@ export function AudioControls() {
   } = useAudioAnalyzer()
 
   const lastVolumeRef = useRef(volume)
-  const volumeChangeTimeoutRef = useRef<NodeJS.Timeout>()
 
-  // UPDATED: handleVolumeChange using correct volume update
-  const handleVolumeChange = useCallback((value: number[]) => {
-    if (volumeChangeTimeoutRef.current) {
-      clearTimeout(volumeChangeTimeoutRef.current);
+  const handleVolumeChange = useCallback((newValue: number[]) => {
+    const value = newValue[0]
+    if (value >= 0 && value <= 1) {
+      setVolume(value)
+      lastVolumeRef.current = value
     }
-    // Set volume using the first value from the array
-    setVolume(value[0]);
-    volumeChangeTimeoutRef.current = setTimeout(() => {
-      lastVolumeRef.current = value[0];
-    }, 200);
-  }, [setVolume]);
+  }, [setVolume])
 
-  // Cleanup timeout on unmount
-  useEffect(() => {
-    return () => {
-      if (volumeChangeTimeoutRef.current) {
-        clearTimeout(volumeChangeTimeoutRef.current)
-      }
-    }
-  }, [])
-
-  // Handle mute/unmute
   const handleMuteToggle = useCallback(() => {
     if (volume === 0) {
       setVolume(lastVolumeRef.current || 0.5)
@@ -56,10 +41,8 @@ export function AudioControls() {
 
   return (
     <div 
-      onClick={(e) => e.stopPropagation()}
-      onMouseDown={(e) => e.stopPropagation()} 
-      onTouchStart={(e) => e.stopPropagation()}
       className="flex items-center gap-1"
+      onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center gap-0.5">
         <Button 
@@ -90,13 +73,11 @@ export function AudioControls() {
         >
           {volume === 0 ? <VolumeX size={14} /> : <Volume2 size={14} />}
         </Button>
-        <div
-          onClick={(e) => e.stopPropagation()}
-          onMouseDown={(e) => e.stopPropagation()}
-          onTouchStart={(e) => e.stopPropagation()}
+        
+        <div 
+          className="relative flex-1"
         >
           <SliderRoot
-            onPointerDown={(e: any) => e.stopPropagation()}
             value={[volume]}
             onValueChange={handleVolumeChange}
             max={1}

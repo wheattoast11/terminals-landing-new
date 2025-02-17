@@ -3,12 +3,12 @@
 import { createContext, useContext, useState, useEffect, useCallback, useRef, ReactNode, useMemo } from "react"
 
 const AUDIO_TRACKS = [
+  '/assets/Sing It To Happen.mp3',
   '/assets/Get In The Mood.mp3',
   '/assets/A Latent Space.mp3',
   '/assets/C-Loli.mp3',
   '/assets/Ocotillo.mp3',
   '/assets/Giving You.mp3',
-  '/assets/Sing It To Happen.mp3',
   '/assets/Swimmer.mp3'
 ]
 
@@ -161,7 +161,7 @@ export function AudioAnalyzerProvider({ children }: { children: ReactNode }) {
     } catch (err) {
       console.error("Error initializing audio:", err);
     }
-  }, [currentTrackIndex, initializeAudioContext, cleanupAudio, updateAudioData, volume]);
+  }, [currentTrackIndex, initializeAudioContext, cleanupAudio, updateAudioData]);
 
   useEffect(() => {
     const handleFirstInteraction = () => {
@@ -182,12 +182,6 @@ export function AudioAnalyzerProvider({ children }: { children: ReactNode }) {
     };
   }, [initializeAudio]);
 
-  useEffect(() => {
-    if (gainNodeRef.current) {
-      gainNodeRef.current.gain.value = volume;
-    }
-  }, [volume]);
-
   const nextTrack = useCallback(() => {
     cleanupAudio();
     audioBufferRef.current = null; // Clear the buffer to force loading the new track
@@ -195,11 +189,17 @@ export function AudioAnalyzerProvider({ children }: { children: ReactNode }) {
   }, [cleanupAudio]);
 
   const setAudioVolume = useCallback((newVolume: number) => {
-    setVolume(newVolume);
-    if (gainNodeRef.current) {
+    if (gainNodeRef.current && sharedAudioContext) {
       gainNodeRef.current.gain.value = newVolume;
     }
+    setVolume(newVolume);
   }, []);
+
+  useEffect(() => {
+    if (gainNodeRef.current) {
+      gainNodeRef.current.gain.value = volume;
+    }
+  }, [volume]);
 
   const togglePlayback = useCallback(() => {
     if (!sharedAudioContext) return;
