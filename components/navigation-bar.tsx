@@ -392,10 +392,27 @@ function ConceptVisualization({ concept, theme }: { concept: string; theme: stri
 
   return (
     <div className="h-[240px] w-full relative overflow-hidden rounded-lg">
-      <Canvas camera={{ position: [0, 0, 2] }}>
+      <Canvas
+        camera={{
+          position: [0, 0, 3],
+          fov: 45,
+          near: 0.1,
+          far: 1000
+        }}
+        gl={{
+          antialias: true,
+          alpha: true,
+          preserveDrawingBuffer: true
+        }}
+        dpr={[1, 2]}
+        linear
+        flat
+      >
         <ambientLight intensity={0.5} />
         <pointLight position={[10, 10, 10]} />
-        {visualComponent}
+        <group scale={[0.8, 0.8, 0.8]}>
+          {visualComponent}
+        </group>
       </Canvas>
     </div>
   );
@@ -758,23 +775,21 @@ export function NavigationBar() {
       <AnimatePresence mode="wait">
         {hoveredItem && descriptions[hoveredItem] && (
           <motion.div
-            initial={{ opacity: 0, x: -40, scale: 0.98 }}
-            animate={{ opacity: 1, x: 0, scale: 1 }}
+            initial={{ opacity: 0, x: -20 }}
+            animate={{ opacity: 1, x: 0 }}
             exit={{ 
               opacity: 0,
-              x: -20,
-              scale: 0.95,
-              filter: "blur(10px)",
+              x: -10,
               transition: {
-                duration: 0.4,
-                ease: [0.4, 0, 0.2, 1]
+                duration: 0.2,
+                ease: "easeOut"
               }
             }}
             transition={{ 
-              duration: 0.3,
-              ease: [0.19, 1.0, 0.22, 1.0]
+              duration: 0.2,
+              ease: "easeOut"
             }}
-            className="fixed top-24 left-8 bottom-8 z-30 w-[600px]"
+            className="fixed top-24 left-8 bottom-8 z-30 w-[600px] pointer-events-auto"
           >
             <motion.div
               className={`w-full h-full rounded-2xl shadow-2xl overflow-hidden relative backdrop-blur-sm ${
@@ -782,7 +797,10 @@ export function NavigationBar() {
                   ? 'bg-gradient-to-br from-black/[0.85] via-gray-900/[0.75] to-transparent border border-gray-800/30'
                   : 'bg-gradient-to-br from-white/[0.85] via-gray-50/[0.75] to-transparent border border-gray-200/30'
               }`}
-              whileHover={{ scale: 1.01, transition: { duration: 0.2 } }}
+              initial={{ scale: 0.98 }}
+              animate={{ scale: 1 }}
+              exit={{ scale: 0.98 }}
+              transition={{ duration: 0.2 }}
             >
               {/* Enhanced gradient elements */}
               <motion.div 
@@ -790,7 +808,7 @@ export function NavigationBar() {
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
                 exit={{ opacity: 0 }}
-                transition={{ duration: 0.3 }}
+                transition={{ duration: 0.2 }}
               />
               <motion.div 
                 className={`absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b ${

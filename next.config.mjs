@@ -14,6 +14,15 @@ const nextConfig = {
     });
     return config;
   },
+  // Ensure consistent static generation
+  experimental: {
+    optimizeCss: true,
+    optimizePackageImports: ['@react-three/fiber', '@react-three/drei', 'three'],
+  },
+  // Prevent unwanted optimizations that could affect Three.js
+  compiler: {
+    removeConsole: false,
+  },
 }
 
 export default nextConfig;
