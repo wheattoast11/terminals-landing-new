@@ -792,7 +792,7 @@ export function NavigationBar() {
             className="fixed top-24 left-8 bottom-8 z-30 w-[600px] pointer-events-auto"
           >
             <motion.div
-              className={`w-full h-full rounded-2xl shadow-2xl overflow-hidden relative backdrop-blur-sm ${
+              className={`w-[1200px] h-full rounded-2xl shadow-2xl overflow-hidden relative backdrop-blur-sm ${
                 theme === 'dark'
                   ? 'bg-gradient-to-br from-black/[0.85] via-gray-900/[0.75] to-transparent border border-gray-800/30'
                   : 'bg-gradient-to-br from-white/[0.85] via-gray-50/[0.75] to-transparent border border-gray-200/30'
@@ -825,128 +825,132 @@ export function NavigationBar() {
                 transition={{ duration: 0.4 }}
               />
 
-              <div className="p-10 relative h-full overflow-y-auto custom-scrollbar">
-                {/* Content */}
-                <div className="relative z-10 flex flex-col h-full">
-                  {/* Header Section */}
-                  <motion.div
-                    className="mb-12"
-                    initial={{ y: -20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.4 }}
-                  >
-                    <h3 className={`text-5xl font-mono font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r ${
-                      theme === 'dark' 
-                        ? 'from-white via-white to-white/80'
-                        : 'from-gray-900 via-gray-900 to-gray-700'
-                    }`}>
-                      {descriptions[hoveredItem]?.title}
-                    </h3>
-                    <p className={`mt-4 text-2xl font-light tracking-wide ${
-                      theme === 'dark' ? 'text-white/70' : 'text-gray-600'
-                    }`}>
-                      {descriptions[hoveredItem]?.caption}
-                    </p>
-                  </motion.div>
-
-                  {/* Content Sections - Moved before visualization */}
-                  <div className="space-y-16 flex-grow">
-                    {/* Non-Technical Section */}
+              <div className="flex h-full">
+                {/* Content Section */}
+                <div className="w-[600px] p-10 relative">
+                  <div className="relative z-10 flex flex-col h-full">
+                    {/* Header Section */}
                     <motion.div
-                      initial={{ x: -20, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.4, delay: 0.3 }}
-                      className="relative z-10"
+                      className="mb-8"
+                      initial={{ y: -20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ duration: 0.4 }}
                     >
-                      <h4 className={`text-xl font-mono mb-6 flex items-center gap-4 relative ${
-                        theme === 'dark' ? 'text-white/90' : 'text-gray-800'
+                      <h3 className={`text-4xl font-mono font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r ${
+                        theme === 'dark' 
+                          ? 'from-white via-white to-white/80'
+                          : 'from-gray-900 via-gray-900 to-gray-700'
                       }`}>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-[2px]">
-                          <div className="w-full h-full bg-gradient-to-r from-cyan-500/90 via-cyan-500/70 to-transparent" />
-                        </div>
-                        <span className="pl-20">For Creators</span>
-                      </h4>
-                      <div className="space-y-6 pl-16">
-                        {descriptions[hoveredItem]?.nonTechnical.map((point, index) => (
-                          <motion.div
-                            key={index}
-                            className="relative"
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: 0.4 + index * 0.1 }}
-                          >
-                            <span className="absolute -left-8 top-[12px] font-mono text-lg opacity-50">//</span>
-                            <p className={`text-xl font-light leading-relaxed tracking-wide ${
-                              theme === 'dark' ? 'text-white/80' : 'text-gray-700'
-                            }`}>
-                              {point}
-                            </p>
-                          </motion.div>
-                        ))}
-                      </div>
+                        {descriptions[hoveredItem]?.title}
+                      </h3>
+                      <p className={`mt-4 text-xl font-light tracking-wide ${
+                        theme === 'dark' ? 'text-white/70' : 'text-gray-600'
+                      }`}>
+                        {descriptions[hoveredItem]?.caption}
+                      </p>
                     </motion.div>
 
-                    {/* Technical Section */}
-                    <motion.div
-                      initial={{ x: -20, opacity: 0 }}
-                      animate={{ x: 0, opacity: 1 }}
-                      transition={{ duration: 0.4, delay: 0.5 }}
-                      className="relative z-10"
-                    >
-                      <h4 className={`text-xl font-mono mb-6 flex items-center gap-4 relative ${
-                        theme === 'dark' ? 'text-white/90' : 'text-gray-800'
-                      }`}>
-                        <div className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-[2px]">
-                          <div className="w-full h-full bg-gradient-to-r from-fuchsia-500/90 via-fuchsia-500/70 to-transparent" />
+                    {/* Content Sections */}
+                    <div className="space-y-12">
+                      {/* Non-Technical Section */}
+                      <motion.div
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.4, delay: 0.3 }}
+                        className="relative z-10"
+                      >
+                        <h4 className={`text-lg font-mono mb-4 flex items-center gap-4 relative ${
+                          theme === 'dark' ? 'text-white/90' : 'text-gray-800'
+                        }`}>
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-[2px]">
+                            <div className="w-full h-full bg-gradient-to-r from-cyan-500/90 via-cyan-500/70 to-transparent" />
+                          </div>
+                          <span className="pl-20">For Creators</span>
+                        </h4>
+                        <div className="space-y-4 pl-16">
+                          {descriptions[hoveredItem]?.nonTechnical.map((point, index) => (
+                            <motion.div
+                              key={index}
+                              className="relative"
+                              initial={{ x: -20, opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              transition={{ delay: 0.4 + index * 0.1 }}
+                            >
+                              <span className="absolute -left-8 top-[10px] font-mono text-base opacity-50">//</span>
+                              <p className={`text-base font-light leading-relaxed tracking-wide ${
+                                theme === 'dark' ? 'text-white/80' : 'text-gray-700'
+                              }`}>
+                                {point}
+                              </p>
+                            </motion.div>
+                          ))}
                         </div>
-                        <span className="pl-20">For Engineers</span>
-                      </h4>
-                      <div className="space-y-6 pl-16">
-                        {descriptions[hoveredItem]?.technical.map((point, index) => (
-                          <motion.div
-                            key={index}
-                            className="relative"
-                            initial={{ x: -20, opacity: 0 }}
-                            animate={{ x: 0, opacity: 1 }}
-                            transition={{ delay: 0.6 + index * 0.1 }}
-                          >
-                            <span className="absolute -left-8 top-[12px] font-mono text-lg opacity-50">//</span>
-                            <p className={`text-xl font-light leading-relaxed tracking-wide ${
-                              theme === 'dark' ? 'text-white/80' : 'text-gray-700'
-                            }`}>
-                              {point}
-                            </p>
-                          </motion.div>
-                        ))}
-                      </div>
+                      </motion.div>
+
+                      {/* Technical Section */}
+                      <motion.div
+                        initial={{ x: -20, opacity: 0 }}
+                        animate={{ x: 0, opacity: 1 }}
+                        transition={{ duration: 0.4, delay: 0.5 }}
+                        className="relative z-10"
+                      >
+                        <h4 className={`text-lg font-mono mb-4 flex items-center gap-4 relative ${
+                          theme === 'dark' ? 'text-white/90' : 'text-gray-800'
+                        }`}>
+                          <div className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-[2px]">
+                            <div className="w-full h-full bg-gradient-to-r from-fuchsia-500/90 via-fuchsia-500/70 to-transparent" />
+                          </div>
+                          <span className="pl-20">For Engineers</span>
+                        </h4>
+                        <div className="space-y-4 pl-16">
+                          {descriptions[hoveredItem]?.technical.map((point, index) => (
+                            <motion.div
+                              key={index}
+                              className="relative"
+                              initial={{ x: -20, opacity: 0 }}
+                              animate={{ x: 0, opacity: 1 }}
+                              transition={{ delay: 0.6 + index * 0.1 }}
+                            >
+                              <span className="absolute -left-8 top-[10px] font-mono text-base opacity-50">//</span>
+                              <p className={`text-base font-light leading-relaxed tracking-wide ${
+                                theme === 'dark' ? 'text-white/80' : 'text-gray-700'
+                              }`}>
+                                {point}
+                              </p>
+                            </motion.div>
+                          ))}
+                        </div>
+                      </motion.div>
+                    </div>
+
+                    {/* Visual Connection Caption */}
+                    <motion.div
+                      className="mt-auto pt-6 border-t border-gray-800/20"
+                      initial={{ y: 20, opacity: 0 }}
+                      animate={{ y: 0, opacity: 1 }}
+                      transition={{ duration: 0.3, delay: 0.7 }}
+                    >
+                      <p className={`text-base italic font-light tracking-wide ${
+                        theme === 'dark' ? 'text-white/60' : 'text-gray-600'
+                      }`}>
+                        {descriptions[hoveredItem]?.visual}
+                      </p>
                     </motion.div>
                   </div>
+                </div>
 
-                  {/* Concept Visualization - Moved after content */}
+                {/* Visualization Section */}
+                <div className="flex-1 p-10 relative">
                   <motion.div
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.5, delay: 0.2 }}
-                    className="mt-12 mb-8"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.5 }}
+                    className="h-full"
                   >
                     <ConceptVisualization 
                       concept={hoveredItem} 
                       theme={theme || 'dark'} 
                     />
-                  </motion.div>
-
-                  {/* Visual Connection Caption */}
-                  <motion.div
-                    className="mt-4 pt-8 border-t border-gray-800/20"
-                    initial={{ y: 20, opacity: 0 }}
-                    animate={{ y: 0, opacity: 1 }}
-                    transition={{ duration: 0.3, delay: 0.7 }}
-                  >
-                    <p className={`text-xl italic font-light tracking-wide ${
-                      theme === 'dark' ? 'text-white/60' : 'text-gray-600'
-                    }`}>
-                      {descriptions[hoveredItem]?.visual}
-                    </p>
                   </motion.div>
                 </div>
               </div>
