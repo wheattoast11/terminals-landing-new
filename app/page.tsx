@@ -46,7 +46,7 @@ export default function Page() {
         </main>
 
         {/* Intuition Labs text with glow effect, link, and copyright */}
-        <motion.div className="absolute bottom-4 right-4 p-4 flex items-center gap-2">
+        <motion.div className="fixed bottom-0 right-0 p-4 sm:p-6 flex items-center gap-2 z-20">
           <motion.a
             href="https://intuitionlabs.tech"
             className="limitless-text text-center no-underline"
@@ -70,17 +70,19 @@ export default function Page() {
             }}
             transition={{ duration: 1.5 }}
             style={{ 
-              fontSize: '1rem', 
+              fontSize: 'clamp(0.75rem, 2vw, 1rem)', 
               fontWeight: '100',
               textShadow: '0 0 10px rgba(255,255,255,0.5)',
               filter: 'blur(0.5px)',
-              color: 'inherit'
+              color: 'inherit',
+              transform: 'scale(var(--scale-factor, 1))',
+              transformOrigin: 'center'
             }}
           >
             intuition labs
           </motion.a>
           <span style={{ 
-            fontSize: '0.8rem',
+            fontSize: 'clamp(0.65rem, 1.5vw, 0.8rem)',
             opacity: 0.8,
             textShadow: '0 0 10px rgba(255,255,255,0.5)'
           }}>

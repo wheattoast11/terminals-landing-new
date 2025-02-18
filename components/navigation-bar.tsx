@@ -688,19 +688,19 @@ export function NavigationBar() {
         {/* Subtle border */}
         <div className="absolute bottom-0 left-0 right-0 h-[1px] bg-gradient-to-r from-transparent via-primary/20 to-transparent" />
 
-        <nav className="px-8 h-24 flex items-center justify-between relative max-w-[1920px] mx-auto">
-          <div className="flex items-center space-x-12">
-            <div className="flex items-center space-x-4 group">
+        <nav className="px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between relative max-w-screen-2xl mx-auto">
+          <div className="flex items-center space-x-6 sm:space-x-8 lg:space-x-12">
+            <div className="flex items-center space-x-3 sm:space-x-4 group">
               <Image
                 src="/logo.jpg"
                 alt="Terminals Logo"
-                width={48}
-                height={48}
-                className="rounded-full transition-transform duration-300 group-hover:scale-105"
+                width={32}
+                height={32}
+                className="rounded-full transition-transform duration-300 group-hover:scale-105 sm:w-10 sm:h-10 lg:w-12 lg:h-12"
                 title=""
               />
               <span 
-                className="text-3xl font-mono tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80 relative"
+                className="text-xl sm:text-2xl lg:text-3xl font-mono tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80 relative"
                 aria-hidden="true"
                 title=""
               >
@@ -713,7 +713,7 @@ export function NavigationBar() {
           {/* Centered navigation items */}
           <div className="absolute left-1/2 transform -translate-x-1/2">
             <div className="hidden md:flex items-center">
-              <div className="flex items-center space-x-12">
+              <div className="flex items-center space-x-6 lg:space-x-12">
                 {navItems.map((item) => (
                   <div
                     key={item.label}
@@ -722,7 +722,7 @@ export function NavigationBar() {
                     onMouseLeave={() => setHoveredItem(null)}
                     aria-hidden="true"
                   >
-                    <span className={`text-sm font-mono transition-colors relative ${
+                    <span className={`text-sm sm:text-base font-mono transition-colors relative ${
                       hoveredItem === item.label ? 'text-primary' : ''
                     }`}>
                       {item.label}
@@ -738,7 +738,7 @@ export function NavigationBar() {
             </div>
           </div>
 
-          <div className="flex items-center space-x-6">
+          <div className="flex items-center space-x-4 sm:space-x-6">
             <div 
               className="relative cursor-not-allowed group"
               onMouseEnter={() => setShowSoonTooltip(true)}
@@ -746,7 +746,7 @@ export function NavigationBar() {
               aria-hidden="true"
               title=""
             >
-              <span className="text-sm font-mono opacity-50 relative" title="">
+              <span className="text-sm sm:text-base font-mono opacity-50 relative" title="">
                 /enter
                 <div className="absolute -inset-x-2 -inset-y-1 bg-primary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
               </span>

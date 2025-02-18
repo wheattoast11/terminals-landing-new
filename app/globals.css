@@ -10,6 +10,45 @@
   text-rendering: optimizeLegibility;
   height: 100vh;
   overflow: hidden;
+
+  /* DPI-aware scaling */
+  --scale-factor: min(1, max(0.85, calc(1 / (var(--device-pixel-ratio, 1)))));
+  
+  /* Viewport-based units */
+  --vh: 1vh;
+  --vw: 1vw;
+  
+  /* Responsive spacing */
+  --nav-height: clamp(4rem, 8vh, 6rem);
+  --content-max-width: min(100vw - 2rem, 1920px);
+  --side-padding: max(1rem, calc((100vw - var(--content-max-width)) / 2));
+}
+
+@media screen and (min-resolution: 2dppx) {
+  :root {
+    --device-pixel-ratio: 2;
+  }
+}
+
+@media screen and (min-resolution: 3dppx) {
+  :root {
+    --device-pixel-ratio: 3;
+  }
+}
+
+/* Update viewport units on resize */
+@media (orientation: portrait) {
+  :root {
+    --vh: calc(var(--viewport-height, 100vh) * 0.01);
+    --vw: 1vw;
+  }
+}
+
+@media (orientation: landscape) {
+  :root {
+    --vh: 1vh;
+    --vw: calc(var(--viewport-width, 100vw) * 0.01);
+  }
 }
 
 /* Prevent color separation in WebGL canvas */
