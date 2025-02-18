@@ -16,12 +16,27 @@ const nextConfig = {
   },
   // Ensure consistent static generation
   experimental: {
-    optimizeCss: true,
+    optimizeCss: false,
     optimizePackageImports: ['@react-three/fiber', '@react-three/drei', 'three'],
   },
   // Prevent unwanted optimizations that could affect Three.js
   compiler: {
     removeConsole: false,
+  },
+  // Custom error pages for static export
+  async redirects() {
+    return [
+      {
+        source: '/404',
+        destination: '/',
+        permanent: true,
+      },
+      {
+        source: '/500',
+        destination: '/',
+        permanent: true,
+      },
+    ];
   },
 }
 
