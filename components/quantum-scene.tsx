@@ -1,6 +1,6 @@
 "use client"
 
-import { useRef, Suspense, useMemo, useEffect } from "react"
+import { useRef, Suspense, useMemo, useEffect, useState } from "react"
 import { useFrame, useThree } from "@react-three/fiber"
 import { EffectComposer, Bloom, ChromaticAberration } from "@react-three/postprocessing"
 import { CentralSingularity } from "./central-singularity"
@@ -110,11 +110,22 @@ function DynamicCursor({ mousePosition }: { mousePosition: { x: number; y: numbe
   );
 }
 
-function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
+export function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
   const groupRef = useRef<THREE.Group>(null)
-  const { audioData } = useAudioAnalyzer()
   const { theme } = useTheme()
+  const { audioData, getAudioIntensity, isAudioLoaded } = useAudioAnalyzer()
   const { isLowPerfDevice } = useDeviceCapabilities()
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const previousIntensityRef = useRef(0);
 
@@ -129,15 +140,6 @@ function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
       groupRef.current.position.y = Math.sin(t * 0.2) * 0.05;
     }
   })
-
-  const getAudioIntensity = useMemo(() => {
-    if (!audioData) return previousIntensityRef.current;
-    const sum = audioData.reduce((acc, val) => acc + val, 0);
-    const currentIntensity = sum / audioData.length / 255; // Normalize to 0-1 range
-    const alpha = 0.9; // smoothing factor (adjustable)
-    previousIntensityRef.current = previousIntensityRef.current * alpha + currentIntensity * (1 - alpha);
-    return previousIntensityRef.current;
-  }, [audioData]);
 
   // Theme-aware colors
   const colors = useMemo(() => ({
@@ -185,7 +187,13 @@ function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
               <VolumetricLight audioIntensity={getAudioIntensity} colors={colors} />
             </>
           )}
-          <WebGLText text="terminals" position={[0, 0.75, 0]} color={colors.text} size={0.7} />
+          <WebGLText 
+            text="terminals" 
+            position={[0, isMobile ? 0.5 : 0.75, 0]} 
+            color={colors.text} 
+            size={isMobile ? 0.5 : 0.7} 
+            audioIntensity={getAudioIntensity()} 
+          />
           {!isLowPerfDevice && <LetterParticles colors={colors} />}
         </Suspense>
       </group>

@@ -65,12 +65,32 @@ function CameraEffects({ mousePosition }: { mousePosition: { x: number; y: numbe
 
 export const CanvasWrapper: React.FC<CanvasWrapperProps> = ({ mousePosition }) => {
   const { theme } = useTheme()
+  const [isMobile, setIsMobile] = React.useState(false)
+  const [mobileFov, setMobileFov] = React.useState(75)
+
+  // Check if device is mobile and adjust FOV accordingly
+  React.useEffect(() => {
+    const checkMobile = () => {
+      const isMobileView = window.innerWidth < 768
+      setIsMobile(isMobileView)
+      // Increase FOV for mobile to show more of the scene
+      setMobileFov(isMobileView ? 90 : 75)
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
 
   const stableMousePosition = React.useMemo(() => ({ x: mousePosition.x, y: mousePosition.y }), [mousePosition.x, mousePosition.y]);
 
   return (
     <Canvas 
-      camera={{ position: [0, 0, 5], fov: 75 }} 
+      camera={{ 
+        position: isMobile ? [0, 0, 4] : [0, 0, 5], 
+        fov: mobileFov,
+        near: 0.1,
+        far: 1000
+      }}
       style={{ position: "absolute" }}
       gl={{
         antialias: true,

@@ -762,19 +762,6 @@ export function NavigationBar() {
             </div>
           </div>
 
-          {/* Mobile Menu Button */}
-          <button
-            className="md:hidden relative z-50 p-2 -mr-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <div className="w-6 h-5 flex flex-col justify-between">
-              <span className={`w-full h-0.5 bg-primary transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
-              <span className={`w-full h-0.5 bg-primary transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
-              <span className={`w-full h-0.5 bg-primary transform transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
-            </div>
-          </button>
-
           {/* Right side controls */}
           <div className="flex items-center space-x-4 sm:space-x-6">
             <div 
@@ -786,8 +773,6 @@ export function NavigationBar() {
               {showSoonTooltip && (
                 <div 
                   className="absolute -top-10 left-1/2 transform -translate-x-1/2 px-3 py-1.5 bg-background/95 border border-primary/20 rounded-lg text-xs font-mono shadow-lg"
-                  aria-hidden="true"
-                  title=""
                 >
                   <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/5 via-transparent to-primary/5" />
                   <div className="absolute inset-0 rounded-lg backdrop-blur-sm" />
@@ -798,9 +783,24 @@ export function NavigationBar() {
                 </div>
               )}
             </div>
-            <AudioControls />
-            <ThemeToggle />
+            <div className="hidden md:flex items-center space-x-4">
+              <AudioControls />
+              <ThemeToggle />
+            </div>
           </div>
+
+          {/* Mobile Menu Button - Moved to left */}
+          <button
+            className="md:hidden absolute left-4 z-50 p-2"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <div className="w-6 h-5 flex flex-col justify-between">
+              <span className={`w-full h-0.5 bg-primary transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+              <span className={`w-full h-0.5 bg-primary transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
+              <span className={`w-full h-0.5 bg-primary transform transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            </div>
+          </button>
         </nav>
 
         {/* Mobile Menu Overlay */}
@@ -810,65 +810,70 @@ export function NavigationBar() {
               initial={{ opacity: 0, y: -10 }}
               animate={{ opacity: 1, y: 0 }}
               exit={{ opacity: 0, y: -10 }}
-              className="fixed inset-0 z-40 md:hidden"
+              className="fixed inset-0 z-40 md:hidden overflow-hidden"
             >
               <div className="absolute inset-0 bg-background/95 backdrop-blur-md" />
-              <nav className="relative h-full pt-20 pb-6 px-4">
-                <div className="flex flex-col space-y-4">
-                  {navItems.map((item) => (
-                    <motion.button
-                      key={item.label}
-                      className={`w-full text-left p-4 rounded-lg font-mono text-lg ${
-                        hoveredItem === item.label 
-                          ? 'bg-primary/10 text-primary'
-                          : 'hover:bg-primary/5'
-                      }`}
-                      onClick={() => handleMobileItemClick(item.label)}
-                      initial={{ opacity: 0, x: -20 }}
-                      animate={{ opacity: 1, x: 0 }}
-                      transition={{ duration: 0.2 }}
-                    >
-                      {item.label}
-                    </motion.button>
-                  ))}
-                  <motion.button
-                    className="w-full text-left p-4 rounded-lg font-mono text-lg opacity-50"
-                    initial={{ opacity: 0, x: -20 }}
-                    animate={{ opacity: 0.5, x: 0 }}
-                    transition={{ duration: 0.2 }}
-                  >
-                    /enter
-                    <span className="ml-2 text-sm">(soon)</span>
-                  </motion.button>
-
-                  {/* Mobile Controls Section */}
-                  <motion.div
-                    className="mt-4 pt-6 border-t border-primary/10"
-                    initial={{ opacity: 0 }}
-                    animate={{ opacity: 1 }}
-                    transition={{ duration: 0.3, delay: 0.2 }}
-                  >
-                    <div className="flex flex-col space-y-6">
-                      {/* Audio Controls Section */}
-                      <div className="px-4">
-                        <h3 className="text-sm font-mono text-primary/60 mb-3">Audio Controls</h3>
-                        <div className="bg-primary/5 rounded-lg p-3">
-                          <AudioControls />
-                        </div>
-                      </div>
-
-                      {/* Theme Toggle Section */}
-                      <div className="px-4">
-                        <h3 className="text-sm font-mono text-primary/60 mb-3">Theme</h3>
-                        <div className="bg-primary/5 rounded-lg p-3 flex items-center justify-between">
-                          <span className="font-mono text-sm">
-                            {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
-                          </span>
-                          <ThemeToggle />
-                        </div>
-                      </div>
+              <nav className="relative h-full pt-20">
+                <div className="h-full overflow-y-auto pb-safe">
+                  <div className="flex flex-col space-y-4 px-4 min-h-full">
+                    {/* Navigation Items */}
+                    <div className="flex-1 space-y-2">
+                      {navItems.map((item) => (
+                        <motion.button
+                          key={item.label}
+                          className={`w-full text-left p-4 rounded-lg font-mono text-lg ${
+                            hoveredItem === item.label 
+                              ? 'bg-primary/10 text-primary'
+                              : 'hover:bg-primary/5'
+                          }`}
+                          onClick={() => handleMobileItemClick(item.label)}
+                          initial={{ opacity: 0, x: -20 }}
+                          animate={{ opacity: 1, x: 0 }}
+                          transition={{ duration: 0.2 }}
+                        >
+                          {item.label}
+                        </motion.button>
+                      ))}
+                      <motion.button
+                        className="w-full text-left p-4 rounded-lg font-mono text-lg opacity-50"
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 0.5, x: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        /enter
+                        <span className="ml-2 text-sm">(soon)</span>
+                      </motion.button>
                     </div>
-                  </motion.div>
+
+                    {/* Mobile Controls Section - Always visible at bottom */}
+                    <motion.div
+                      className="pt-6 border-t border-primary/10"
+                      initial={{ opacity: 0 }}
+                      animate={{ opacity: 1 }}
+                      transition={{ duration: 0.3, delay: 0.2 }}
+                    >
+                      <div className="flex flex-col space-y-6 pb-8">
+                        {/* Audio Controls Section */}
+                        <div className="px-4">
+                          <h3 className="text-sm font-mono text-primary/60 mb-3">Audio Controls</h3>
+                          <div className="bg-primary/5 rounded-lg p-4">
+                            <AudioControls />
+                          </div>
+                        </div>
+
+                        {/* Theme Toggle Section */}
+                        <div className="px-4">
+                          <h3 className="text-sm font-mono text-primary/60 mb-3">Theme</h3>
+                          <div className="bg-primary/5 rounded-lg p-4 flex items-center justify-between">
+                            <span className="font-mono text-sm">
+                              {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                            </span>
+                            <ThemeToggle />
+                          </div>
+                        </div>
+                      </div>
+                    </motion.div>
+                  </div>
                 </div>
               </nav>
             </motion.div>
