@@ -41,7 +41,7 @@ export function AudioControls() {
 
   return (
     <div 
-      className="flex items-center gap-1"
+      className="flex items-center gap-1 touch-manipulation"
       onClick={(e) => e.stopPropagation()}
     >
       <div className="flex items-center gap-0.5">
@@ -49,45 +49,44 @@ export function AudioControls() {
           variant="ghost" 
           size="icon" 
           onClick={togglePlayback}
-          className="w-7 h-7"
+          className="w-8 h-8 sm:w-7 sm:h-7 touch-manipulation"
         >
-          {isPlaying ? <Pause size={14} /> : <Play size={14} />}
+          {isPlaying ? <Pause size={16} className="sm:w-3.5 sm:h-3.5" /> : <Play size={16} className="sm:w-3.5 sm:h-3.5" />}
         </Button>
         
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={nextTrack}
-          className="w-7 h-7"
+          className="w-8 h-8 sm:w-7 sm:h-7 touch-manipulation"
         >
-          <SkipForward size={14} />
+          <SkipForward size={16} className="sm:w-3.5 sm:h-3.5" />
         </Button>
       </div>
 
-      <div className="flex items-center gap-1 w-24">
+      <div className="flex items-center gap-1 w-28 sm:w-24">
         <Button 
           variant="ghost" 
           size="icon" 
           onClick={handleMuteToggle}
-          className="w-7 h-7"
+          className="w-8 h-8 sm:w-7 sm:h-7 touch-manipulation"
         >
-          {volume === 0 ? <VolumeX size={14} /> : <Volume2 size={14} />}
+          {volume === 0 ? <VolumeX size={16} className="sm:w-3.5 sm:h-3.5" /> : <Volume2 size={16} className="sm:w-3.5 sm:h-3.5" />}
         </Button>
         
-        <div 
-          className="relative flex-1"
-        >
+        <div className="relative flex-1">
           <SliderRoot
             value={[volume]}
             onValueChange={handleVolumeChange}
             max={1}
             step={0.01}
-            className="relative flex items-center select-none touch-none w-14 h-5"
+            className="relative flex items-center select-none touch-manipulation w-16 sm:w-14 h-8 sm:h-5"
+            aria-label="Volume"
           >
-            <SliderTrack className="relative h-1 w-full grow overflow-hidden rounded-full bg-foreground/20">
+            <SliderTrack className="relative h-1.5 sm:h-1 w-full grow overflow-hidden rounded-full bg-foreground/20">
               <SliderRange className="absolute h-full bg-foreground/40" />
             </SliderTrack>
-            <SliderThumb className="block h-3 w-3 rounded-full border border-foreground/50 bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" />
+            <SliderThumb className="block h-4 w-4 sm:h-3 sm:w-3 rounded-full border border-foreground/50 bg-background shadow transition-colors focus-visible:outline-none focus-visible:ring-1 focus-visible:ring-ring disabled:pointer-events-none disabled:opacity-50" />
           </SliderRoot>
         </div>
       </div>

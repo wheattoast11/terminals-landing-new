@@ -571,9 +571,35 @@ const cardGradients: { [key: string]: string } = {
 
 export function NavigationBar() {
   const { theme } = useTheme()
-  const [isSidebarOpen, setIsSidebarOpen] = useState(false)
+  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false)
   const [hoveredItem, setHoveredItem] = useState<string | null>(null)
   const [showSoonTooltip, setShowSoonTooltip] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  // Check if device is mobile
+  useEffect(() => {
+    const checkMobile = () => {
+      setIsMobile(window.innerWidth < 768) // md breakpoint
+    }
+    checkMobile()
+    window.addEventListener('resize', checkMobile)
+    return () => window.removeEventListener('resize', checkMobile)
+  }, [])
+
+  // Close mobile menu on resize to desktop
+  useEffect(() => {
+    if (!isMobile) {
+      setIsMobileMenuOpen(false)
+    }
+  }, [isMobile])
+
+  // Handle mobile menu item click
+  const handleMobileItemClick = (item: string) => {
+    if (isMobile) {
+      setHoveredItem(item)
+      setIsMobileMenuOpen(false)
+    }
+  }
 
   const descriptions: { [key: string]: { 
     title: string; 
@@ -710,46 +736,53 @@ export function NavigationBar() {
             </div>
           </div>
 
-          {/* Centered navigation items */}
-          <div className="absolute left-1/2 transform -translate-x-1/2">
-            <div className="hidden md:flex items-center">
-              <div className="flex items-center space-x-6 lg:space-x-12">
-                {navItems.map((item) => (
-                  <div
-                    key={item.label}
-                    className="relative group cursor-pointer"
-                    onMouseEnter={() => setHoveredItem(item.label)}
-                    onMouseLeave={() => setHoveredItem(null)}
-                    aria-hidden="true"
-                  >
-                    <span className={`text-sm sm:text-base font-mono transition-colors relative ${
-                      hoveredItem === item.label ? 'text-primary' : ''
-                    }`}>
-                      {item.label}
-                      <div className={`absolute -inset-x-2 -inset-y-1 bg-primary/5 rounded-lg transition-all duration-300 ${
-                        hoveredItem === item.label 
-                          ? 'opacity-100 shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]' 
-                          : 'opacity-0'
-                      }`} />
-                    </span>
-                  </div>
-                ))}
-              </div>
+          {/* Desktop Navigation */}
+          <div className="absolute left-1/2 transform -translate-x-1/2 hidden md:block">
+            <div className="flex items-center space-x-6 lg:space-x-12">
+              {navItems.map((item) => (
+                <div
+                  key={item.label}
+                  className="relative group cursor-pointer"
+                  onMouseEnter={() => setHoveredItem(item.label)}
+                  onMouseLeave={() => setHoveredItem(null)}
+                  aria-hidden="true"
+                >
+                  <span className={`text-sm sm:text-base font-mono transition-colors relative ${
+                    hoveredItem === item.label ? 'text-primary' : ''
+                  }`}>
+                    {item.label}
+                    <div className={`absolute -inset-x-2 -inset-y-1 bg-primary/5 rounded-lg transition-all duration-300 ${
+                      hoveredItem === item.label 
+                        ? 'opacity-100 shadow-[0_0_15px_rgba(var(--primary-rgb),0.3)]' 
+                        : 'opacity-0'
+                    }`} />
+                  </span>
+                </div>
+              ))}
             </div>
           </div>
 
+          {/* Mobile Menu Button */}
+          <button
+            className="md:hidden relative z-50 p-2 -mr-2"
+            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+            aria-label="Toggle menu"
+          >
+            <div className="w-6 h-5 flex flex-col justify-between">
+              <span className={`w-full h-0.5 bg-primary transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+              <span className={`w-full h-0.5 bg-primary transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
+              <span className={`w-full h-0.5 bg-primary transform transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+            </div>
+          </button>
+
+          {/* Right side controls */}
           <div className="flex items-center space-x-4 sm:space-x-6">
             <div 
-              className="relative cursor-not-allowed group"
+              className="relative cursor-not-allowed group hidden sm:block"
               onMouseEnter={() => setShowSoonTooltip(true)}
               onMouseLeave={() => setShowSoonTooltip(false)}
-              aria-hidden="true"
-              title=""
             >
-              <span className="text-sm sm:text-base font-mono opacity-50 relative" title="">
-                /enter
-                <div className="absolute -inset-x-2 -inset-y-1 bg-primary/5 rounded-lg opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </span>
+              <span className="text-sm sm:text-base font-mono opacity-50">/enter</span>
               {showSoonTooltip && (
                 <div 
                   className="absolute -top-10 left-1/2 transform -translate-x-1/2 px-3 py-1.5 bg-background/95 border border-primary/20 rounded-lg text-xs font-mono shadow-lg"
@@ -769,17 +802,90 @@ export function NavigationBar() {
             <ThemeToggle />
           </div>
         </nav>
+
+        {/* Mobile Menu Overlay */}
+        <AnimatePresence>
+          {isMobileMenuOpen && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              exit={{ opacity: 0, y: -10 }}
+              className="fixed inset-0 z-40 md:hidden"
+            >
+              <div className="absolute inset-0 bg-background/95 backdrop-blur-md" />
+              <nav className="relative h-full pt-20 pb-6 px-4">
+                <div className="flex flex-col space-y-4">
+                  {navItems.map((item) => (
+                    <motion.button
+                      key={item.label}
+                      className={`w-full text-left p-4 rounded-lg font-mono text-lg ${
+                        hoveredItem === item.label 
+                          ? 'bg-primary/10 text-primary'
+                          : 'hover:bg-primary/5'
+                      }`}
+                      onClick={() => handleMobileItemClick(item.label)}
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 1, x: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      {item.label}
+                    </motion.button>
+                  ))}
+                  <motion.button
+                    className="w-full text-left p-4 rounded-lg font-mono text-lg opacity-50"
+                    initial={{ opacity: 0, x: -20 }}
+                    animate={{ opacity: 0.5, x: 0 }}
+                    transition={{ duration: 0.2 }}
+                  >
+                    /enter
+                    <span className="ml-2 text-sm">(soon)</span>
+                  </motion.button>
+
+                  {/* Mobile Controls Section */}
+                  <motion.div
+                    className="mt-4 pt-6 border-t border-primary/10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                  >
+                    <div className="flex flex-col space-y-6">
+                      {/* Audio Controls Section */}
+                      <div className="px-4">
+                        <h3 className="text-sm font-mono text-primary/60 mb-3">Audio Controls</h3>
+                        <div className="bg-primary/5 rounded-lg p-3">
+                          <AudioControls />
+                        </div>
+                      </div>
+
+                      {/* Theme Toggle Section */}
+                      <div className="px-4">
+                        <h3 className="text-sm font-mono text-primary/60 mb-3">Theme</h3>
+                        <div className="bg-primary/5 rounded-lg p-3 flex items-center justify-between">
+                          <span className="font-mono text-sm">
+                            {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                          </span>
+                          <ThemeToggle />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </nav>
+            </motion.div>
+          )}
+        </AnimatePresence>
       </header>
 
       {/* Elegant Vertical Hover Cards */}
       <AnimatePresence mode="wait">
         {hoveredItem && descriptions[hoveredItem] && (
           <motion.div
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
+            initial={{ opacity: 0, x: isMobile ? 0 : -20, y: isMobile ? 20 : 0 }}
+            animate={{ opacity: 1, x: 0, y: 0 }}
             exit={{ 
               opacity: 0,
-              x: -10,
+              x: isMobile ? 0 : -10,
+              y: isMobile ? 10 : 0,
               transition: {
                 duration: 0.2,
                 ease: "easeOut"
@@ -789,10 +895,16 @@ export function NavigationBar() {
               duration: 0.2,
               ease: "easeOut"
             }}
-            className="fixed top-24 left-8 bottom-8 z-30 w-[600px] pointer-events-auto"
+            className={`fixed z-30 ${
+              isMobile
+                ? 'inset-4 top-20'
+                : 'top-24 left-8 bottom-8 w-[600px]'
+            } pointer-events-auto`}
           >
             <motion.div
-              className={`w-[1200px] h-full rounded-2xl shadow-2xl overflow-hidden relative backdrop-blur-sm ${
+              className={`${
+                isMobile ? 'w-full' : 'w-[1200px]'
+              } h-full rounded-2xl shadow-2xl overflow-hidden relative backdrop-blur-sm ${
                 theme === 'dark'
                   ? 'bg-gradient-to-br from-black/[0.85] via-gray-900/[0.75] to-transparent border border-gray-800/30'
                   : 'bg-gradient-to-br from-white/[0.85] via-gray-50/[0.75] to-transparent border border-gray-200/30'
@@ -825,9 +937,9 @@ export function NavigationBar() {
                 transition={{ duration: 0.4 }}
               />
 
-              <div className="flex h-full">
+              <div className={`${isMobile ? 'flex-col' : 'flex'} h-full overflow-auto`}>
                 {/* Content Section */}
-                <div className="w-[600px] p-10 relative">
+                <div className={`${isMobile ? 'w-full' : 'w-[600px]'} p-6 sm:p-10 relative`}>
                   <div className="relative z-10 flex flex-col h-full">
                     {/* Header Section */}
                     <motion.div
@@ -940,7 +1052,7 @@ export function NavigationBar() {
                 </div>
 
                 {/* Visualization Section */}
-                <div className="flex-1 p-10 relative">
+                <div className={`${isMobile ? 'w-full h-[300px]' : 'flex-1'} p-6 sm:p-10 relative`}>
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
@@ -954,6 +1066,19 @@ export function NavigationBar() {
                   </motion.div>
                 </div>
               </div>
+
+              {/* Mobile Close Button */}
+              {isMobile && (
+                <button
+                  className="absolute top-4 right-4 p-2 rounded-full bg-primary/10 text-primary"
+                  onClick={() => setHoveredItem(null)}
+                  aria-label="Close"
+                >
+                  <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                  </svg>
+                </button>
+              )}
             </motion.div>
           </motion.div>
         )}
