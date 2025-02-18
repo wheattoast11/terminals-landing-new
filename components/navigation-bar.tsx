@@ -369,33 +369,33 @@ function ConceptVisualization({ concept, theme }: { concept: string; theme: stri
     background: theme === 'dark' ? '#000000' : '#ffffff',
     particles: theme === 'dark' ? '#ffffff' : '#000000',
     text: theme === 'dark' ? '#ffffff' : '#000000',
-    glow: 0.5,
-    intensity: 0.5
+    glow: 0.8,
+    intensity: 0.7
   }), [theme]);
 
   const visualComponent = useMemo(() => {
     switch(concept) {
       case "/emergence":
-        return <CentralSingularity audioIntensity={0.5} colors={baseColors} />;
+        return <CentralSingularity audioIntensity={0.7} colors={baseColors} />;
       case "/swarms":
-        return <ExpandingParticleNetwork audioIntensity={0.5} colors={baseColors} />;
+        return <ExpandingParticleNetwork audioIntensity={0.7} colors={baseColors} />;
       case "/network":
-        return <DynamicNetworkLines audioIntensity={0.5} colors={baseColors} />;
+        return <DynamicNetworkLines audioIntensity={0.7} colors={baseColors} />;
       case "/experience":
-        return <DimensionalTransform audioIntensity={0.5} colors={baseColors} />;
+        return <DimensionalTransform audioIntensity={0.7} colors={baseColors} />;
       case "/understand":
-        return <EnhancedNetworkLines audioIntensity={0.5} colors={baseColors} />;
+        return <EnhancedNetworkLines audioIntensity={0.7} colors={baseColors} />;
       default:
         return <SubtleParticles />;
     }
   }, [concept, baseColors]);
 
   return (
-    <div className="h-[240px] w-full relative overflow-hidden rounded-lg">
+    <div className="h-full w-full relative overflow-hidden rounded-lg">
       <Canvas
         camera={{
-          position: [0, 0, 3],
-          fov: 45,
+          position: [0, 0, 2.5],
+          fov: 50,
           near: 0.1,
           far: 1000
         }}
@@ -408,9 +408,9 @@ function ConceptVisualization({ concept, theme }: { concept: string; theme: stri
         linear
         flat
       >
-        <ambientLight intensity={0.5} />
-        <pointLight position={[10, 10, 10]} />
-        <group scale={[0.8, 0.8, 0.8]}>
+        <ambientLight intensity={0.7} />
+        <pointLight position={[10, 10, 10]} intensity={1.2} />
+        <group scale={[1.2, 1.2, 1.2]}>
           {visualComponent}
         </group>
       </Canvas>
@@ -612,14 +612,14 @@ export function NavigationBar() {
       title: "/universal-synergy",
       caption: "the next chapter in our digital journey",
       nonTechnical: [
-        "witness ideas evolve and combine in unexpected ways",
-        "experience a whole greater than its parts",
-        "watch as patterns of thought emerge naturally"
+        "experience AI that evolves through physical and digital interaction",
+        "witness the emergence of truly adaptive intelligence",
+        "be part of an ecosystem that bridges human and machine understanding"
       ],
       technical: [
-        "model complex quantum dynamics on classical hardware",
-        "real-time tracking of emergent machine intelligence",
-        "neuromorphic architecture for unprecedented performance"
+        "adaptive agent swarms with real-time state coherence tracking",
+        "hyperbolic manifold coordination for emergent intelligence",
+        "vector-enabled state persistence with HNSW similarity search"
       ],
       visual: "like the swirling patterns you see, new insights emerge from the network"
     },
@@ -627,61 +627,61 @@ export function NavigationBar() {
       title: "/digital-democracy",
       caption: "a billion minds solving impossible problems",
       nonTechnical: [
-        "harness the power of collective problem-solving",
-        "dynamic groups adapt and evolve to meet any challenge",
-        "inspire a generation of machines to help humanity"
+        "collaborate with AI teams across physical and digital domains",
+        "witness real-time problem-solving at universal scale",
+        "shape the future of embodied intelligence"
       ],
       technical: [
-        "novel field dynamics ensure swarm coherence",
-        "ai that collaborates and shares information, without orchestration",
-        "associative memory network for rapid knowledge access"
+        "decentralized agent orchestration with adaptive optimization",
+        "real-time performance monitoring with coherence metrics",
+        "dynamic resource allocation with elastic scaling"
       ],
       visual: "like the interconnected clusters you see, swarms form and re-form to achieve shared goals"
     },
     "/network": {
       title: "/evolutionary-fabric",
-      caption: "a living network of minds",
+      caption: "a living network of minds and machines",
       nonTechnical: [
-        "connect with global creators and innovators",
-        "share ideas seamlessly across boundaries",
-        "experience the power of collective action"
+        "experience seamless collaboration across all realities",
+        "interact with a global network of human and machine intelligence",
+        "build in an environment that adapts to any challenge"
       ],
       technical: [
-        "decentralized governance and consensus",
-        "peer-to-peer ZK communication",
-        "homomorphic encryption for privacy"
+        "webcontainer-isolated MCP server with SSE transport",
+        "pglite vector database with real-time state synchronization",
+        "adaptive consensus protocols for network stability"
       ],
       visual: "each flowing line represents a secure connection in this global network"
     },
     "/experience": {
       title: "/merge-reality",
-      caption: "where digital and physical coalesce",
+      caption: "where digital and physical worlds unite",
       nonTechnical: [
-        "immerse in collective creativity",
-        "blur the lines of reality",
-        "explore infinite possibility through interaction"
+        "transform memories and spaces into immersive 3D experiences",
+        "bridge physical and digital realities through AI-powered perception",
+        "participate in hybrid experiences that transcend traditional boundaries"
       ],
       technical: [
-        "webgpu-accelerated real-time gaussian splatting",
-        "intuitive universal interface design",
-        "multi-token prediction for imperceptible latency"
+        "generalist world agent integration with multimodal perception",
+        "real-time 3D scene reconstruction from video and sensor data",
+        "hybrid IRL/URL event orchestration with VR/AR capabilities"
       ],
-      visual: "the flowing depths mirror the richness of this new experience"
+      visual: "watch as the boundaries between real and digital dissolve into seamless experience"
     },
     "/understand": {
       title: "/truth-realized",
-      caption: "the foundation to true understanding",
+      caption: "perception meets possibility",
       nonTechnical: [
-        "learn forever and build intuition",
-        "unshackle your creative potential",
-        "witness order emerge from chaos"
+        "witness AI agents learn and adapt through real-world interaction",
+        "explore complex systems through immersive simulation",
+        "shape the future of human-AI experiential learning"
       ],
       technical: [
-        "study emergent relationships between disparate fields",
-        "contribute to the democratization of super intelligence",
-        "research collective intelligence patterns"
+        "experiential learning framework with real-time feedback loops",
+        "multi-agent simulation environment for robotic training",
+        "advanced perception system with cross-modal understanding"
       ],
-      visual: "these intricate patterns reveal the underlying order of emergence"
+      visual: "each connection represents a bridge between thought and action"
     },
     "/enter": {
       title: "/join-us",
@@ -909,10 +909,10 @@ export function NavigationBar() {
             <motion.div
               className={`${
                 isMobile ? 'w-full' : 'w-[1200px]'
-              } h-full rounded-2xl shadow-2xl overflow-hidden relative backdrop-blur-sm ${
+              } h-full rounded-2xl shadow-2xl overflow-hidden relative backdrop-blur-xl ${
                 theme === 'dark'
-                  ? 'bg-gradient-to-br from-black/[0.85] via-gray-900/[0.75] to-transparent border border-gray-800/30'
-                  : 'bg-gradient-to-br from-white/[0.85] via-gray-50/[0.75] to-transparent border border-gray-200/30'
+                  ? 'bg-gradient-to-br from-black/[0.92] via-gray-900/[0.85] to-transparent border border-gray-800/30'
+                  : 'bg-gradient-to-br from-white/[0.92] via-gray-50/[0.85] to-transparent border border-gray-200/30'
               }`}
               initial={{ scale: 0.98 }}
               animate={{ scale: 1 }}
@@ -944,23 +944,23 @@ export function NavigationBar() {
 
               <div className={`${isMobile ? 'flex-col' : 'flex'} h-full overflow-auto`}>
                 {/* Content Section */}
-                <div className={`${isMobile ? 'w-full' : 'w-[600px]'} p-6 sm:p-10 relative`}>
+                <div className={`${isMobile ? 'w-full' : 'w-[500px]'} p-6 sm:p-10 relative`}>
                   <div className="relative z-10 flex flex-col h-full">
                     {/* Header Section */}
                     <motion.div
-                      className="mb-8"
+                      className="mb-6"
                       initial={{ y: -20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ duration: 0.4 }}
                     >
-                      <h3 className={`text-4xl font-mono font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r ${
+                      <h3 className={`text-3xl sm:text-4xl font-mono font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r ${
                         theme === 'dark' 
                           ? 'from-white via-white to-white/80'
                           : 'from-gray-900 via-gray-900 to-gray-700'
                       }`}>
                         {descriptions[hoveredItem]?.title}
                       </h3>
-                      <p className={`mt-4 text-xl font-light tracking-wide ${
+                      <p className={`mt-3 text-lg sm:text-xl font-light tracking-wide ${
                         theme === 'dark' ? 'text-white/70' : 'text-gray-600'
                       }`}>
                         {descriptions[hoveredItem]?.caption}
@@ -968,7 +968,7 @@ export function NavigationBar() {
                     </motion.div>
 
                     {/* Content Sections */}
-                    <div className="space-y-12">
+                    <div className="space-y-8">
                       {/* Non-Technical Section */}
                       <motion.div
                         initial={{ x: -20, opacity: 0 }}
@@ -1039,35 +1039,35 @@ export function NavigationBar() {
                         </div>
                       </motion.div>
                     </div>
-
-                    {/* Visual Connection Caption */}
-                    <motion.div
-                      className="mt-auto pt-6 border-t border-gray-800/20"
-                      initial={{ y: 20, opacity: 0 }}
-                      animate={{ y: 0, opacity: 1 }}
-                      transition={{ duration: 0.3, delay: 0.7 }}
-                    >
-                      <p className={`text-base italic font-light tracking-wide ${
-                        theme === 'dark' ? 'text-white/60' : 'text-gray-600'
-                      }`}>
-                        {descriptions[hoveredItem]?.visual}
-                      </p>
-                    </motion.div>
                   </div>
                 </div>
 
                 {/* Visualization Section */}
-                <div className={`${isMobile ? 'w-full h-[300px]' : 'flex-1'} p-6 sm:p-10 relative`}>
+                <div className={`${isMobile ? 'w-full h-[400px]' : 'flex-1'} p-6 sm:p-10 relative flex flex-col`}>
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="h-full"
+                    className="flex-1"
                   >
                     <ConceptVisualization 
                       concept={hoveredItem} 
                       theme={theme || 'dark'} 
                     />
+                  </motion.div>
+                  
+                  {/* Visual Connection Caption - Moved here */}
+                  <motion.div
+                    className="mt-4 px-4"
+                    initial={{ y: 20, opacity: 0 }}
+                    animate={{ y: 0, opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.7 }}
+                  >
+                    <p className={`text-base italic font-light tracking-wide text-center ${
+                      theme === 'dark' ? 'text-white/60' : 'text-gray-600'
+                    }`}>
+                      {descriptions[hoveredItem]?.visual}
+                    </p>
                   </motion.div>
                 </div>
               </div>
