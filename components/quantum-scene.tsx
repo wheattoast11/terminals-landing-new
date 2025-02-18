@@ -110,7 +110,7 @@ function DynamicCursor({ mousePosition }: { mousePosition: { x: number; y: numbe
   );
 }
 
-export function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
+function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
   const groupRef = useRef<THREE.Group>(null)
   const { theme } = useTheme()
   const { audioData, getAudioIntensity, isAudioLoaded } = useAudioAnalyzer()
@@ -224,6 +224,7 @@ export function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps
   )
 }
 
-const MemoizedQuantumScene = React.memo(QuantumScene);
+// Export only the memoized version
+export const MemoizedQuantumScene = React.memo(QuantumScene);
 export { MemoizedQuantumScene as QuantumScene };
 
