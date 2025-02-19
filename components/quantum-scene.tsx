@@ -116,6 +116,34 @@ function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
   const { audioData, getAudioIntensity, isAudioLoaded } = useAudioAnalyzer()
   const { isLowPerfDevice } = useDeviceCapabilities()
   const [isMobile, setIsMobile] = useState(false)
+  const previousIntensityRef = useRef(0)
+  const [smoothedIntensity, setSmoothedIntensity] = useState(0)
+  const lastUpdateTimeRef = useRef(0)
+
+  // Update smoothed intensity with lerp and throttling
+  useEffect(() => {
+    const updateIntensity = () => {
+      const now = performance.now()
+      // Throttle updates to 24fps
+      if (now - lastUpdateTimeRef.current < 1000 / 24) {
+        return
+      }
+      lastUpdateTimeRef.current = now
+
+      const currentIntensity = getAudioIntensity()
+      const lerpFactor = 0.08 // Slightly reduced for smoother transitions
+      const newIntensity = previousIntensityRef.current + (currentIntensity - previousIntensityRef.current) * lerpFactor
+      
+      // Only update if change is significant
+      if (Math.abs(newIntensity - previousIntensityRef.current) > 0.01) {
+        previousIntensityRef.current = newIntensity
+        setSmoothedIntensity(newIntensity)
+      }
+    }
+
+    const intervalId = setInterval(updateIntensity, 1000 / 24) // Reduced to 24fps
+    return () => clearInterval(intervalId)
+  }, [getAudioIntensity])
 
   // Check if device is mobile
   useEffect(() => {
@@ -127,46 +155,39 @@ function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
     return () => window.removeEventListener('resize', checkMobile)
   }, [])
 
-  const previousIntensityRef = useRef(0);
-
   useFrame((state) => {
     if (groupRef.current) {
-      // Continuous rotation regardless of hover state
-      const t = state.clock.getElapsedTime();
-      groupRef.current.rotation.y = t * 0.05;
+      const t = state.clock.getElapsedTime()
+      // Reduced base animation values and audio reactivity multipliers
+      const baseRotationSpeed = 0.03
+      const audioRotationBoost = smoothedIntensity * 0.02
+      groupRef.current.rotation.x = t * (baseRotationSpeed + audioRotationBoost) * 0.01
+      groupRef.current.rotation.y = t * (baseRotationSpeed + audioRotationBoost) * 0.01
       
-      // Add subtle oscillation for more dynamic movement
-      groupRef.current.rotation.x = Math.sin(t * 0.1) * 0.02;
-      groupRef.current.position.y = Math.sin(t * 0.2) * 0.05;
+      // Simplified oscillation with reduced audio impact
+      const baseOscillation = 0.008
+      groupRef.current.position.y = Math.sin(t * 0.2) * baseOscillation
     }
   })
 
-  // Theme-aware colors
+  // Theme-aware colors with reduced updates
   const colors = useMemo(() => ({
     primary: theme === "dark" ? "#0fbfff" : "#6366f1",
     secondary: theme === "dark" ? "#e0e0e0" : "#818cf8",
     background: theme === "dark" ? "#000000" : "#ffffff",
     particles: theme === "dark" ? "#ffffff" : "#6366f1",
     text: theme === "dark" ? "#ffffff" : "#2c2c2c",
-    glow: theme === "dark" ? 1.5 : 0.9,
-    intensity: theme === "dark" ? 0.8 : 0.5  // Reduced base intensity
+    glow: theme === "dark" ? 1.2 : 0.8, // Reduced glow intensity
+    intensity: theme === "dark" ? 0.6 : 0.4 // Reduced base intensity
   }), [theme])
 
-  // After defining colors and getAudioIntensity, compute effective post-processing parameters
-  const effectiveBloomIntensity = effectsConfig?.bloomIntensity ?? (colors.glow * 1.1 + getAudioIntensity);
-  const effectiveBloomThreshold = effectsConfig?.bloomThreshold ?? 0.1;
-  const effectiveBloomSmoothing = effectsConfig?.bloomSmoothing ?? 0.95;
-  const effectiveBloomHeight = effectsConfig?.bloomHeight ?? 300;
-  const effectiveChromaticMultiplier = effectsConfig?.chromaticMultiplier ?? 0.85;  // Reduced from 1.05
-
-  // Calculate bass-weighted audio intensity for chromatic aberration
-  const chromaticAudioEffect = useMemo(() => {
-    if (!audioData) return 0;
-    // Focus on first 1/4 of frequencies (bass range)
-    const bassRange = audioData.slice(0, Math.floor(audioData.length / 4));
-    const bassIntensity = bassRange.reduce((acc, val) => acc + val, 0) / bassRange.length / 255;
-    return bassIntensity * 0.0015; // Reduced multiplier for subtler effect
-  }, [audioData]);
+  // Optimized post-processing parameters
+  const effectiveBloomIntensity = effectsConfig?.bloomIntensity ?? (colors.glow + smoothedIntensity * 0.5)
+  const effectiveBloomThreshold = effectsConfig?.bloomThreshold ?? 0.2
+  const effectiveBloomSmoothing = effectsConfig?.bloomSmoothing ?? 0.95
+  const effectiveBloomHeight = effectsConfig?.bloomHeight ?? 100 // Reduced height
+  const effectiveChromaticMultiplier = effectsConfig?.chromaticMultiplier ?? 0.6
+  const chromaticAudioEffect = smoothedIntensity * 0.001 // Reduced effect
 
   return (
     <>
@@ -177,14 +198,14 @@ function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
       {/* Main Scene Group */}
       <group ref={groupRef}>
         <Suspense fallback={null}>
-          <CentralSingularity audioIntensity={getAudioIntensity} colors={colors} />
-          <ExpandingParticleNetwork audioIntensity={getAudioIntensity} colors={colors} />
-          <NetworkLines audioIntensity={getAudioIntensity} colors={colors} />
-          <InteractiveQuantumParticles mousePosition={mousePosition} audioIntensity={getAudioIntensity} colors={colors} />
+          <CentralSingularity audioIntensity={smoothedIntensity} colors={colors} />
+          <ExpandingParticleNetwork audioIntensity={smoothedIntensity * 0.01} colors={colors} />
+          <NetworkLines audioIntensity={0} colors={colors} />
+          <InteractiveQuantumParticles mousePosition={mousePosition} audioIntensity={smoothedIntensity} colors={colors} />
           {!isLowPerfDevice && (
             <>
-              <QuantumTunneling audioIntensity={getAudioIntensity} colors={colors} />
-              <VolumetricLight audioIntensity={getAudioIntensity} colors={colors} />
+              <QuantumTunneling audioIntensity={smoothedIntensity * 0.2} colors={colors} />
+              <VolumetricLight audioIntensity={0} colors={colors} />
             </>
           )}
           <WebGLText 
@@ -192,7 +213,7 @@ function QuantumScene({ mousePosition, effectsConfig }: QuantumSceneProps) {
             position={[0, isMobile ? 0.5 : 0.75, 0]} 
             color={colors.text} 
             size={isMobile ? 0.5 : 0.7} 
-            audioIntensity={getAudioIntensity()} 
+            audioIntensity={smoothedIntensity * 0.3} 
           />
           {!isLowPerfDevice && <LetterParticles colors={colors} />}
         </Suspense>

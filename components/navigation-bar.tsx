@@ -8,8 +8,8 @@ import { AudioControls } from "./audio-controls"
 import { Canvas, useFrame } from '@react-three/fiber'
 import * as THREE from 'three'
 import React, { useRef } from "react"
-import { Sphere } from "@react-three/drei"
 import Image from "next/image"
+import { TerminalsLogo } from "./terminals-logo"
 
 const navItems = [
   { label: "/emergence" },
@@ -72,82 +72,6 @@ function SubtleParticles() {
     </points>
   );
 }
-
-function SubtleBackgroundMesh({ theme }: { theme: string }) {
-  const meshRef = React.useRef<THREE.Mesh>(null);
-  useFrame((state, delta) => {
-    if (meshRef.current) {
-      const t = state.clock.getElapsedTime();
-      meshRef.current.rotation.z = 0.05 * Math.sin(t * 0.8);
-      meshRef.current.rotation.x = 0.03 * Math.cos(t * 0.5);
-      meshRef.current.position.x = 0.1 * Math.sin(t * 0.9);
-      meshRef.current.position.y = 0.1 * Math.cos(t * 0.7);
-    }
-  });
-  const color = theme === 'dark' ? "#ffffff" : "#000000";
-  React.useEffect(() => {
-    return () => {
-      if (meshRef.current) {
-        if (meshRef.current.geometry) {
-          meshRef.current.geometry.dispose();
-        }
-        const material = meshRef.current.material;
-        if (Array.isArray(material)) {
-          material.forEach(mat => {
-            if (mat && typeof mat.dispose === 'function') {
-              mat.dispose();
-            }
-          });
-        } else if (material && typeof material.dispose === 'function') {
-          material.dispose();
-        }
-      }
-    };
-  }, []);
-  return (
-    <mesh ref={meshRef}>
-      <planeGeometry args={[6, 3]} />
-      <meshStandardMaterial color={color} transparent opacity={0.05} />
-    </mesh>
-  );
-}
-
-// Custom Line Component
-const NetworkLine = React.memo(({ start, end, color, opacity }: { 
-  start: THREE.Vector3, 
-  end: THREE.Vector3, 
-  color: string,
-  opacity: number 
-}) => {
-  const ref = useRef<THREE.Line>(null);
-
-  useEffect(() => {
-    if (ref.current) {
-      const positions = new Float32Array([
-        start.x, start.y, start.z,
-        end.x, end.y, end.z
-      ]);
-      ref.current.geometry.setAttribute(
-        'position',
-        new THREE.Float32BufferAttribute(positions, 3)
-      );
-      ref.current.geometry.attributes.position.needsUpdate = true;
-    }
-  }, [start, end]);
-
-  return (
-    <primitive object={new THREE.Line(
-      new THREE.BufferGeometry().setAttribute(
-        'position',
-        new THREE.Float32BufferAttribute([
-          start.x, start.y, start.z,
-          end.x, end.y, end.z
-        ], 3)
-      ),
-      new THREE.LineBasicMaterial({ color, transparent: true, opacity })
-    )} ref={ref} />
-  );
-});
 
 // Dynamic Network Component - For /network visualization
 function DynamicNetworkLines({ audioIntensity, colors }: { audioIntensity: number, colors: any }) {
@@ -421,32 +345,111 @@ function ConceptVisualization({ concept, theme }: { concept: string; theme: stri
 // DimensionalTransform Component - Shows 2D to 3D transformation
 function DimensionalTransform({ audioIntensity, colors }: { audioIntensity: number, colors: any }) {
   const meshRef = useRef<THREE.Mesh>(null);
+  const planeRef = useRef<THREE.Mesh>(null);
   const [morphProgress, setMorphProgress] = useState(0);
 
+  // Create grid texture
+  const gridTexture = useMemo(() => {
+    const size = 512;
+    const canvas = document.createElement('canvas');
+    canvas.width = size;
+    canvas.height = size;
+    const ctx = canvas.getContext('2d')!;
+    
+    // Fill background
+    ctx.fillStyle = 'rgba(150, 237, 255, 0.26)';
+    ctx.fillRect(0, 0, size, size);
+    
+    // Draw grid
+    ctx.strokeStyle = 'rgba(255, 255, 255, 0.64)';
+    ctx.lineWidth = 1;
+    ctx.globalAlpha = 0.1 + audioIntensity * 0.4;
+    
+    const step = size / 10;
+    for (let i = 0; i <= size; i += step) {
+      // Vertical lines
+      ctx.beginPath();
+      ctx.moveTo(i, 0);
+      ctx.lineTo(i, size);
+      ctx.stroke();
+      
+      // Horizontal lines
+      ctx.beginPath();
+      ctx.moveTo(0, i);
+      ctx.lineTo(size, i);
+      ctx.stroke();
+    }
+    
+    const texture = new THREE.CanvasTexture(canvas);
+    texture.needsUpdate = true;
+    return texture;
+  }, [colors.primary, audioIntensity]);
+
   useFrame((state) => {
-    if (meshRef.current) {
+    if (meshRef.current && planeRef.current) {
       const t = state.clock.getElapsedTime();
-      // Oscillate between 2D and 3D
-      const newProgress = (Math.sin(t * 0.5) + 1) / 2;
+      
+      // Smooth oscillation between 2D and 3D states
+      const newProgress = (Math.sin(t * 0.3) + 1) / 2;
       setMorphProgress(newProgress);
       
-      // Rotate smoothly
+      // Rotate the 3D object smoothly
       meshRef.current.rotation.x = t * 0.2;
       meshRef.current.rotation.y = t * 0.3;
+      
+      // Scale based on morph progress to create transition effect
+      meshRef.current.scale.setScalar(0.6 + (1 - newProgress) * 0.4);
+      planeRef.current.scale.setScalar(0.6 + newProgress * 0.4);
+      
+      // Fade opacity based on morph progress
+      if (meshRef.current.material instanceof THREE.Material) {
+        meshRef.current.material.opacity = 0.1 + (1 - newProgress) * 0.8;
+      }
+      if (planeRef.current.material instanceof THREE.Material) {
+        planeRef.current.material.opacity = 0.1 + newProgress * 0.8;
+      }
+      
+      // Add subtle wobble to plane
+      planeRef.current.position.y = Math.sin(t * 2) * 0.01;
     }
   });
 
+  // Cleanup texture on unmount
+  useEffect(() => {
+    return () => {
+      gridTexture.dispose();
+    };
+  }, [gridTexture]);
+
   return (
-    <mesh ref={meshRef}>
-      <torusGeometry args={[1, 0.3, 16, 32]} />
-      <meshStandardMaterial
-        color={colors.primary}
-        metalness={0.5}
-        roughness={0.2}
-        transparent
-        opacity={0.8}
-      />
-    </mesh>
+    <group position={[0, 0, 0]} scale={[0.8, 0.8, 0.8]}>
+      {/* 3D Object */}
+      <mesh ref={meshRef}>
+        <boxGeometry args={[1.2, 1.2, 1.2]} />
+        <meshStandardMaterial
+          color={colors.primary + audioIntensity * 0.2}
+          metalness={0.2}
+          roughness={0.1}
+          transparent
+          opacity={0.2}
+          wireframe
+        />
+      </mesh>
+      
+      {/* 2D Plane */}
+      <mesh ref={planeRef} rotation={[0, 0, 0]}>
+        <planeGeometry args={[1.5, 1.5]} />
+        <meshStandardMaterial
+          color={colors.primary}
+          metalness={0.3}
+          roughness={0.2}
+          transparent
+          opacity={0.8}
+          side={THREE.DoubleSide}
+          map={gridTexture}
+        />
+      </mesh>
+    </group>
   );
 }
 
@@ -454,32 +457,77 @@ function DimensionalTransform({ audioIntensity, colors }: { audioIntensity: numb
 function CentralSingularity({ audioIntensity, colors }: { audioIntensity: number, colors: any }) {
   const portalRef = useRef<THREE.Mesh>(null);
   const ringRef = useRef<THREE.Mesh>(null);
+  const particlesRef = useRef<THREE.Points>(null);
+
+  // Create particles for the portal effect
+  const [particles] = useState(() => {
+    const count = 100;
+    const positions = new Float32Array(count * 3);
+    const radius = 0.6;
+    
+    for (let i = 0; i < count; i++) {
+      const angle = (i / count) * Math.PI * 2;
+      const radiusVariation = radius + (Math.random() - 0.5) * 0.2;
+      positions[i * 3] = Math.cos(angle) * radiusVariation;
+      positions[i * 3 + 1] = Math.sin(angle) * radiusVariation;
+      positions[i * 3 + 2] = (Math.random() - 0.5) * 0.1;
+    }
+    
+    return positions;
+  });
 
   useFrame((state) => {
-    if (portalRef.current && ringRef.current) {
+    if (portalRef.current && ringRef.current && particlesRef.current) {
       const t = state.clock.getElapsedTime();
       
-      // Rotate portal
-      portalRef.current.rotation.z = t * 0.5;
+      // Rotate portal more slowly
+      portalRef.current.rotation.z = t * 0.3;
       
       // Counter-rotate ring
-      ringRef.current.rotation.z = -t * 0.3;
+      ringRef.current.rotation.z = -t * 0.2;
       
-      // Pulse effect
-      const pulse = Math.sin(t * 2) * 0.1 + 1;
+      // Gentle pulse effect
+      const pulse = Math.sin(t * 1.5) * 0.05 + 1;
       portalRef.current.scale.set(pulse, pulse, 1);
+      
+      // Rotate particles
+      particlesRef.current.rotation.z = t * 0.1;
+      
+      // Scale effect based on audio
+      const scale = 1 + audioIntensity * 0.1;
+      particlesRef.current.scale.set(scale, scale, 1);
     }
   });
 
   return (
-    <group>
-      {/* Central portal */}
+    <group scale={[0.8, 0.8, 0.8]}>
+      {/* Particle system */}
+      <points ref={particlesRef}>
+        <bufferGeometry>
+          <bufferAttribute
+            attach="attributes-position"
+            count={particles.length / 3}
+            array={particles}
+            itemSize={3}
+          />
+        </bufferGeometry>
+        <pointsMaterial
+          size={0.02}
+          color={colors.primary}
+          transparent
+          opacity={0.6}
+          sizeAttenuation
+          depthWrite={false}
+        />
+      </points>
+      
+      {/* Central portal - smaller and more defined */}
       <mesh ref={portalRef}>
-        <torusGeometry args={[0.8, 0.2, 30, 100]} />
+        <torusGeometry args={[0.6, 0.15, 30, 100]} />
         <meshStandardMaterial
           color={colors.primary}
           emissive={colors.primary}
-          emissiveIntensity={colors.glow}
+          emissiveIntensity={colors.glow * 0.8}
           metalness={0.8}
           roughness={0.2}
           transparent
@@ -487,15 +535,15 @@ function CentralSingularity({ audioIntensity, colors }: { audioIntensity: number
         />
       </mesh>
       
-      {/* Outer ring */}
+      {/* Outer ring - more subtle */}
       <mesh ref={ringRef}>
-        <ringGeometry args={[1.2, 1.3, 50]} />
+        <ringGeometry args={[0.9, 0.95, 50]} />
         <meshStandardMaterial
           color={colors.secondary}
           emissive={colors.secondary}
-          emissiveIntensity={colors.glow * 0.5}
+          emissiveIntensity={colors.glow * 0.3}
           transparent
-          opacity={0.4}
+          opacity={0.3}
         />
       </mesh>
     </group>
@@ -548,7 +596,7 @@ function ExpandingParticleNetwork({ audioIntensity, colors }: { audioIntensity: 
         />
       </bufferGeometry>
       <pointsMaterial
-        size={0.05}
+        size={0.03}
         color={colors.primary}
         transparent
         opacity={0.8}
@@ -617,7 +665,7 @@ export function NavigationBar() {
         "be part of an ecosystem that bridges human and machine understanding"
       ],
       technical: [
-        "adaptive agent swarms with real-time state coherence tracking",
+        "adaptive agent meshes with real-time state coherence tracking",
         "hyperbolic manifold coordination for emergent intelligence",
         "vector-enabled state persistence with HNSW similarity search"
       ],
@@ -632,7 +680,7 @@ export function NavigationBar() {
         "shape the future of embodied intelligence"
       ],
       technical: [
-        "decentralized agent orchestration with adaptive optimization",
+        "decentralized agent swarms with adaptive optimization",
         "real-time performance monitoring with coherence metrics",
         "dynamic resource allocation with elastic scaling"
       ],
@@ -647,8 +695,8 @@ export function NavigationBar() {
         "build in an environment that adapts to any challenge"
       ],
       technical: [
-        "webcontainer-isolated MCP server with SSE transport",
-        "pglite vector database with real-time state synchronization",
+        "in memory MCP server with SSE transport",
+        "wasm vector database with real-time state synchronization",
         "adaptive consensus protocols for network stability"
       ],
       visual: "each flowing line represents a secure connection in this global network"
@@ -716,24 +764,7 @@ export function NavigationBar() {
 
         <nav className="px-4 sm:px-6 lg:px-8 h-16 sm:h-20 flex items-center justify-between relative max-w-screen-2xl mx-auto">
           <div className="flex items-center space-x-6 sm:space-x-8 lg:space-x-12">
-            <div className="flex items-center space-x-3 sm:space-x-4 group">
-              <Image
-                src="/logo.jpg"
-                alt="Terminals Logo"
-                width={32}
-                height={32}
-                className="rounded-full transition-transform duration-300 group-hover:scale-105 sm:w-10 sm:h-10 lg:w-12 lg:h-12"
-                title=""
-              />
-              <span 
-                className="text-xl sm:text-2xl lg:text-3xl font-mono tracking-wider bg-clip-text text-transparent bg-gradient-to-r from-primary to-primary/80 relative"
-                aria-hidden="true"
-                title=""
-              >
-                terminals
-                <div className="absolute inset-0 bg-primary/20 blur-2xl opacity-0 group-hover:opacity-100 transition-opacity duration-300" />
-              </span>
-            </div>
+            <TerminalsLogo />
           </div>
 
           {/* Desktop Navigation */}
@@ -788,97 +819,20 @@ export function NavigationBar() {
               <ThemeToggle />
             </div>
           </div>
-
-          {/* Mobile Menu Button - Moved to left */}
-          <button
-            className="md:hidden absolute left-4 z-50 p-2"
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            aria-label="Toggle menu"
-          >
-            <div className="w-6 h-5 flex flex-col justify-between">
-              <span className={`w-full h-0.5 bg-primary transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
-              <span className={`w-full h-0.5 bg-primary transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
-              <span className={`w-full h-0.5 bg-primary transform transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
-            </div>
-          </button>
         </nav>
 
-        {/* Mobile Menu Overlay */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, y: -10 }}
-              animate={{ opacity: 1, y: 0 }}
-              exit={{ opacity: 0, y: -10 }}
-              className="fixed inset-0 z-40 md:hidden overflow-hidden"
-            >
-              <div className="absolute inset-0 bg-background/95 backdrop-blur-md" />
-              <nav className="relative h-full pt-20">
-                <div className="h-full overflow-y-auto pb-safe">
-                  <div className="flex flex-col space-y-4 px-4 min-h-full">
-                    {/* Navigation Items */}
-                    <div className="flex-1 space-y-2">
-                      {navItems.map((item) => (
-                        <motion.button
-                          key={item.label}
-                          className={`w-full text-left p-4 rounded-lg font-mono text-lg ${
-                            hoveredItem === item.label 
-                              ? 'bg-primary/10 text-primary'
-                              : 'hover:bg-primary/5'
-                          }`}
-                          onClick={() => handleMobileItemClick(item.label)}
-                          initial={{ opacity: 0, x: -20 }}
-                          animate={{ opacity: 1, x: 0 }}
-                          transition={{ duration: 0.2 }}
-                        >
-                          {item.label}
-                        </motion.button>
-                      ))}
-                      <motion.button
-                        className="w-full text-left p-4 rounded-lg font-mono text-lg opacity-50"
-                        initial={{ opacity: 0, x: -20 }}
-                        animate={{ opacity: 0.5, x: 0 }}
-                        transition={{ duration: 0.2 }}
-                      >
-                        /enter
-                        <span className="ml-2 text-sm">(soon)</span>
-                      </motion.button>
-                    </div>
-
-                    {/* Mobile Controls Section - Always visible at bottom */}
-                    <motion.div
-                      className="pt-6 border-t border-primary/10"
-                      initial={{ opacity: 0 }}
-                      animate={{ opacity: 1 }}
-                      transition={{ duration: 0.3, delay: 0.2 }}
-                    >
-                      <div className="flex flex-col space-y-6 pb-8">
-                        {/* Audio Controls Section */}
-                        <div className="px-4">
-                          <h3 className="text-sm font-mono text-primary/60 mb-3">Audio Controls</h3>
-                          <div className="bg-primary/5 rounded-lg p-4">
-                            <AudioControls />
-                          </div>
-                        </div>
-
-                        {/* Theme Toggle Section */}
-                        <div className="px-4">
-                          <h3 className="text-sm font-mono text-primary/60 mb-3">Theme</h3>
-                          <div className="bg-primary/5 rounded-lg p-4 flex items-center justify-between">
-                            <span className="font-mono text-sm">
-                              {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
-                            </span>
-                            <ThemeToggle />
-                          </div>
-                        </div>
-                      </div>
-                    </motion.div>
-                  </div>
-                </div>
-              </nav>
-            </motion.div>
-          )}
-        </AnimatePresence>
+        {/* Mobile Menu Button - Moved to left */}
+        <button
+          className="md:hidden absolute left-4 z-50 p-2"
+          onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
+          aria-label="Toggle menu"
+        >
+          <div className="w-6 h-5 flex flex-col justify-between">
+            <span className={`w-full h-0.5 bg-primary transform transition-all duration-300 ${isMobileMenuOpen ? 'rotate-45 translate-y-2' : ''}`} />
+            <span className={`w-full h-0.5 bg-primary transition-all duration-300 ${isMobileMenuOpen ? 'opacity-0' : ''}`} />
+            <span className={`w-full h-0.5 bg-primary transform transition-all duration-300 ${isMobileMenuOpen ? '-rotate-45 -translate-y-2' : ''}`} />
+          </div>
+        </button>
       </header>
 
       {/* Elegant Vertical Hover Cards */}
@@ -903,16 +857,16 @@ export function NavigationBar() {
             className={`fixed z-30 ${
               isMobile
                 ? 'inset-4 top-20'
-                : 'top-24 left-8 bottom-8 w-[600px]'
+                : 'top-24 left-8 bottom-8 w-[500px]'
             } pointer-events-auto`}
           >
             <motion.div
               className={`${
-                isMobile ? 'w-full' : 'w-[1200px]'
-              } h-full rounded-2xl shadow-2xl overflow-hidden relative backdrop-blur-xl ${
+                isMobile ? 'w-full' : 'w-[1000px]'
+              } h-full rounded-2xl shadow-2xl overflow-hidden relative backdrop-blur-2xl ${
                 theme === 'dark'
-                  ? 'bg-gradient-to-br from-black/[0.92] via-gray-900/[0.85] to-transparent border border-gray-800/30'
-                  : 'bg-gradient-to-br from-white/[0.92] via-gray-50/[0.85] to-transparent border border-gray-200/30'
+                  ? 'bg-gradient-to-br from-black/[0.95] via-gray-900/[0.92] to-black/[0.95] border border-gray-800/40'
+                  : 'bg-gradient-to-br from-white/[0.95] via-gray-50/[0.92] to-white/[0.95] border border-gray-200/40'
               }`}
               initial={{ scale: 0.98 }}
               animate={{ scale: 1 }}
@@ -923,18 +877,18 @@ export function NavigationBar() {
               <motion.div 
                 className={`absolute inset-0 bg-gradient-to-br ${cardGradients[hoveredItem] || cardGradients["/enter"]}`}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 1 }}
+                animate={{ opacity: 0.8 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               />
               <motion.div 
                 className={`absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b ${
-                  hoveredItem === "/emergence" ? "from-transparent via-cyan-500/40 to-transparent" :
-                  hoveredItem === "/swarms" ? "from-transparent via-emerald-500/40 to-transparent" :
-                  hoveredItem === "/network" ? "from-transparent via-violet-500/40 to-transparent" :
-                  hoveredItem === "/experience" ? "from-transparent via-amber-500/40 to-transparent" :
-                  hoveredItem === "/understand" ? "from-transparent via-blue-500/40 to-transparent" :
-                  "from-transparent via-teal-500/40 to-transparent"
+                  hoveredItem === "/emergence" ? "from-transparent via-cyan-500/50 to-transparent" :
+                  hoveredItem === "/swarms" ? "from-transparent via-emerald-500/50 to-transparent" :
+                  hoveredItem === "/network" ? "from-transparent via-violet-500/50 to-transparent" :
+                  hoveredItem === "/experience" ? "from-transparent via-amber-500/50 to-transparent" :
+                  hoveredItem === "/understand" ? "from-transparent via-blue-500/50 to-transparent" :
+                  "from-transparent via-teal-500/50 to-transparent"
                 }`}
                 initial={{ scaleY: 0 }}
                 animate={{ scaleY: 1 }}
@@ -944,23 +898,23 @@ export function NavigationBar() {
 
               <div className={`${isMobile ? 'flex-col' : 'flex'} h-full overflow-auto`}>
                 {/* Content Section */}
-                <div className={`${isMobile ? 'w-full' : 'w-[500px]'} p-6 sm:p-10 relative`}>
+                <div className={`${isMobile ? 'w-full' : 'w-[450px]'} p-8 sm:p-12 relative`}>
                   <div className="relative z-10 flex flex-col h-full">
                     {/* Header Section */}
                     <motion.div
-                      className="mb-6"
+                      className="mb-8"
                       initial={{ y: -20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ duration: 0.4 }}
                     >
-                      <h3 className={`text-3xl sm:text-4xl font-mono font-medium tracking-tight bg-clip-text text-transparent bg-gradient-to-r ${
+                      <h3 className={`text-4xl sm:text-5xl font-mono font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r ${
                         theme === 'dark' 
                           ? 'from-white via-white to-white/80'
                           : 'from-gray-900 via-gray-900 to-gray-700'
                       }`}>
                         {descriptions[hoveredItem]?.title}
                       </h3>
-                      <p className={`mt-3 text-lg sm:text-xl font-light tracking-wide ${
+                      <p className={`mt-4 text-base sm:text-xl font-light tracking-wide ${
                         theme === 'dark' ? 'text-white/70' : 'text-gray-600'
                       }`}>
                         {descriptions[hoveredItem]?.caption}
@@ -968,7 +922,7 @@ export function NavigationBar() {
                     </motion.div>
 
                     {/* Content Sections */}
-                    <div className="space-y-8">
+                    <div className="space-y-10">
                       {/* Non-Technical Section */}
                       <motion.div
                         initial={{ x: -20, opacity: 0 }}
@@ -976,7 +930,7 @@ export function NavigationBar() {
                         transition={{ duration: 0.4, delay: 0.3 }}
                         className="relative z-10"
                       >
-                        <h4 className={`text-lg font-mono mb-4 flex items-center gap-4 relative ${
+                        <h4 className={`text-xl font-mono mb-5 flex items-center gap-4 relative ${
                           theme === 'dark' ? 'text-white/90' : 'text-gray-800'
                         }`}>
                           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-[2px]">
@@ -993,8 +947,8 @@ export function NavigationBar() {
                               animate={{ x: 0, opacity: 1 }}
                               transition={{ delay: 0.4 + index * 0.1 }}
                             >
-                              <span className="absolute -left-8 top-[10px] font-mono text-base opacity-50">//</span>
-                              <p className={`text-base font-light leading-relaxed tracking-wide ${
+                              <span className="absolute -left-8 top-[10px] font-mono text-sm opacity-50">//</span>
+                              <p className={`text-l leading-relaxed tracking-wide ${
                                 theme === 'dark' ? 'text-white/80' : 'text-gray-700'
                               }`}>
                                 {point}
@@ -1011,7 +965,7 @@ export function NavigationBar() {
                         transition={{ duration: 0.4, delay: 0.5 }}
                         className="relative z-10"
                       >
-                        <h4 className={`text-lg font-mono mb-4 flex items-center gap-4 relative ${
+                        <h4 className={`text-xl font-mono mb-5 flex items-center gap-4 relative ${
                           theme === 'dark' ? 'text-white/90' : 'text-gray-800'
                         }`}>
                           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-[2px]">
@@ -1028,8 +982,8 @@ export function NavigationBar() {
                               animate={{ x: 0, opacity: 1 }}
                               transition={{ delay: 0.6 + index * 0.1 }}
                             >
-                              <span className="absolute -left-8 top-[10px] font-mono text-base opacity-50">//</span>
-                              <p className={`text-base font-light leading-relaxed tracking-wide ${
+                              <span className="absolute -left-8 top-[10px] font-mono text-sm opacity-50">//</span>
+                              <p className={`text-l leading-relaxed tracking-wide ${
                                 theme === 'dark' ? 'text-white/80' : 'text-gray-700'
                               }`}>
                                 {point}
@@ -1043,27 +997,30 @@ export function NavigationBar() {
                 </div>
 
                 {/* Visualization Section */}
-                <div className={`${isMobile ? 'w-full h-[400px]' : 'flex-1'} p-6 sm:p-10 relative flex flex-col`}>
+                <div className={`${isMobile ? 'w-full h-[350px]' : 'flex-1'} p-6 sm:p-8 relative flex flex-col`}>
                   <motion.div
                     initial={{ opacity: 0 }}
                     animate={{ opacity: 1 }}
                     transition={{ duration: 0.5 }}
-                    className="flex-1"
+                    className="flex-1 relative"
                   >
-                    <ConceptVisualization 
-                      concept={hoveredItem} 
-                      theme={theme || 'dark'} 
-                    />
+                    <div className="absolute inset-0 backdrop-blur-sm bg-gradient-to-br from-background/20 via-transparent to-background/20" />
+                    <div className="relative z-5 h-full">
+                      <ConceptVisualization 
+                        concept={hoveredItem} 
+                        theme={theme || 'dark'} 
+                      />
+                    </div>
                   </motion.div>
                   
-                  {/* Visual Connection Caption - Moved here */}
+                  {/* Visual Connection Caption */}
                   <motion.div
                     className="mt-4 px-4"
                     initial={{ y: 20, opacity: 0 }}
                     animate={{ y: 0, opacity: 1 }}
                     transition={{ duration: 0.3, delay: 0.7 }}
                   >
-                    <p className={`text-base italic font-light tracking-wide text-center ${
+                    <p className={`text-xl italic font-light tracking-wide text-center ${
                       theme === 'dark' ? 'text-white/60' : 'text-gray-600'
                     }`}>
                       {descriptions[hoveredItem]?.visual}
@@ -1085,6 +1042,83 @@ export function NavigationBar() {
                 </button>
               )}
             </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
+
+      {/* Mobile Menu Overlay */}
+      <AnimatePresence>
+        {isMobileMenuOpen && (
+          <motion.div
+            initial={{ opacity: 0, y: -10 }}
+            animate={{ opacity: 1, y: 0 }}
+            exit={{ opacity: 0, y: -10 }}
+            className="fixed inset-0 z-40 md:hidden overflow-hidden"
+          >
+            <div className="absolute inset-0 bg-background/95 backdrop-blur-md" />
+            <nav className="relative h-full pt-20">
+              <div className="h-full overflow-y-auto pb-safe">
+                <div className="flex flex-col space-y-4 px-4 min-h-full">
+                  {/* Navigation Items */}
+                  <div className="flex-1 space-y-2">
+                    {navItems.map((item) => (
+                      <motion.button
+                        key={item.label}
+                        className={`w-full text-left p-4 rounded-lg font-mono text-lg ${
+                          hoveredItem === item.label 
+                            ? 'bg-primary/10 text-primary'
+                            : 'hover:bg-primary/5'
+                        }`}
+                        onClick={() => handleMobileItemClick(item.label)}
+                        initial={{ opacity: 0, x: -20 }}
+                        animate={{ opacity: 1, x: 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
+                        {item.label}
+                      </motion.button>
+                    ))}
+                    <motion.button
+                      className="w-full text-left p-4 rounded-lg font-mono text-lg opacity-50"
+                      initial={{ opacity: 0, x: -20 }}
+                      animate={{ opacity: 0.5, x: 0 }}
+                      transition={{ duration: 0.2 }}
+                    >
+                      /enter
+                      <span className="ml-2 text-sm">(soon)</span>
+                    </motion.button>
+                  </div>
+
+                  {/* Mobile Controls Section - Always visible at bottom */}
+                  <motion.div
+                    className="pt-6 border-t border-primary/10"
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ duration: 0.3, delay: 0.2 }}
+                  >
+                    <div className="flex flex-col space-y-6 pb-8">
+                      {/* Audio Controls Section */}
+                      <div className="px-4">
+                        <h3 className="text-sm font-mono text-primary/60 mb-3">Audio Controls</h3>
+                        <div className="bg-primary/5 rounded-lg p-4">
+                          <AudioControls />
+                        </div>
+                      </div>
+
+                      {/* Theme Toggle Section */}
+                      <div className="px-4">
+                        <h3 className="text-sm font-mono text-primary/60 mb-3">Theme</h3>
+                        <div className="bg-primary/5 rounded-lg p-4 flex items-center justify-between">
+                          <span className="font-mono text-sm">
+                            {theme === 'dark' ? 'Dark Mode' : 'Light Mode'}
+                          </span>
+                          <ThemeToggle />
+                        </div>
+                      </div>
+                    </div>
+                  </motion.div>
+                </div>
+              </div>
+            </nav>
           </motion.div>
         )}
       </AnimatePresence>

@@ -12,8 +12,8 @@ const spaceGrotesk = Space_Grotesk({
 })
 
 export const metadata: Metadata = {
-  title: "Terminals",
-  description: "Interactive Audio Experience",
+  title: "terminals // digital worlds",
+  description: "decentralized world computer",
 }
 
 export default function RootLayout({

@@ -5,14 +5,21 @@ import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 
-// Messages source
+// Ethereal messages with philosophical undertones
 const messages = [
-  "reality decoded. your senses reimagined.",
-  "your mind is the architect of a digital cosmos.",
-  "experience a universe built by neural connections.",
-  "where consciousness meets code.",
-  "transcend the digital divide.",
-  "neural pathways illuminate the void."
+  "consciousness encoded",
+  "neural pathways illuminate",
+  "digital echoes resonate",
+  "quantum thoughts emerge",
+  "signals in the void",
+  "patterns in chaos",
+  "ethereal connections",
+  "digital realms",
+  "neural resonance",
+  "quantum fields",
+  "illuminating paths",
+  "runic universes",
+  "symphony of data"
 ];
 
 // Create an array of all individual words from messages
@@ -21,8 +28,10 @@ const messages = [
 interface WordData {
   id: string;
   text: string;
-  top: string; // e.g., "50%"
-  left: string; // e.g., "30%"
+  top: string;
+  left: string;
+  radius: number;
+  angle: number;
 }
 
 interface CosmicWordProps {
@@ -33,47 +42,78 @@ interface CosmicWordProps {
   theme: string;
 }
 
+// Define corner zones for text placement
+const CORNER_ZONES = [
+  { x: 0.15, y: 0.15 },    // Top-left
+  { x: 0.85, y: 0.15 },    // Top-right
+  { x: 0.15, y: 0.85 },    // Bottom-left
+  { x: 0.85, y: 0.85 }     // Bottom-right
+];
+
 // CosmicWord component uses CSS animation for the typewriter effect
 function CosmicWord({ text, top, left, onComplete, theme }: CosmicWordProps) {
   const [randomStyle] = useState(() => {
-    const fontSize = (0.8 + Math.random() * 0.2).toFixed(3) + "rem";
-    const opacity = 0.7 + Math.random() * 0.2; // Narrower opacity range
-    const gradientAngle = Math.floor(Math.random() * 360);
-    // More cohesive gradient with softer transitions
-    const gradient = `linear-gradient(${gradientAngle}deg, 
-      rgba(248,250,252,0.9) 0%, 
-      rgba(124,58,237,0.85) 30%,
-      rgba(219,39,119,0.85) 60%,
-      rgba(245,158,11,0.85) 90%,
-      transparent 100%)`;
+    const fontSize = `clamp(0.9rem, ${(0.8 + Math.random() * 0.2).toFixed(3)}rem, 1.3rem)`;
+    const opacity = 0.6 + Math.random() * 0.1; // Very high opacity
+    
+    // Simpler, more readable color schemes
+    const colorSchemes = [
+      // White with slight blue tint
+      {
+        start: 'rgba(255, 255, 255, 0.98)',
+        middle: 'rgba(220, 240, 255, 0.9)',
+        end: 'rgba(175, 216, 250, 0.65)'
+      },
+      // Pure white to soft white
+      {
+        start: 'rgba(255, 255, 255, 0.85)',
+        middle: 'rgba(250, 250, 255, 0.78)',
+        end: 'rgba(245, 245, 255, 0.55)'
+      },
+      // Soft cyan
+      {
+        start: 'rgba(255, 255, 255, 0.98)',
+        middle: 'rgba(235, 255, 255, 0.95)',
+        end: 'rgba(172, 252, 252, 0.69)'
+      }
+    ];
+    
+    const scheme = colorSchemes[Math.floor(Math.random() * colorSchemes.length)];
+    const gradient = `linear-gradient(${Math.random() * 360}deg, 
+      ${scheme.start},
+      ${scheme.middle},
+      ${scheme.end})`;
+    
     return { fontSize, opacity, gradient };
   });
   
-  const typingDuration = 0.15 * text.length;
+  const typingDuration = Math.min(0.8 * text.length, 4); // Faster typing
+  const fadeOutDelay = typingDuration + 3;
+  const totalDuration = fadeOutDelay + 1.5;
 
   useEffect(() => {
     const timer = setTimeout(() => {
       onComplete();
-    }, (typingDuration + 2.5) * 1000);
+    }, totalDuration * 1000);
     return () => clearTimeout(timer);
-  }, [typingDuration, onComplete]);
+  }, [totalDuration, onComplete]);
 
   return (
     <motion.div
-      initial={{ opacity: 0, scale: 0.8, filter: 'blur(2px)' }}
+      initial={{ opacity: 0, filter: 'blur(2px)' }}
       animate={{ 
         opacity: randomStyle.opacity, 
-        scale: 1,
-        filter: 'blur(0px)',
+        filter: 'blur(0.5px)',
         textShadow: [
-          '0 0 15px rgba(248,250,252,0.6)',
-          '0 0 20px rgba(124,58,237,0.4)',
-          '0 0 15px rgba(248,250,252,0.6)'
+          '0 0 1px rgba(255,255,255,1)',
+          '0 0 2px rgba(255,255,255,0.95)',
+          '0 0 1px rgba(255,255,255,1)'
         ]
       }}
-      exit={{ opacity: 0, scale: 0.8, filter: 'blur(2px)' }}
+      exit={{ opacity: 0, filter: 'blur(2px)' }}
       transition={{ 
         duration: 1.5,
+        ease: "easeInOut",
         textShadow: {
           duration: 3,
           repeat: Infinity,
@@ -84,24 +124,34 @@ function CosmicWord({ text, top, left, onComplete, theme }: CosmicWordProps) {
         position: "absolute",
         top,
         left,
+        transform: 'translate(-50%, -50%)',
         fontSize: randomStyle.fontSize,
+        fontWeight: "400", // Slightly reduced weight for clarity
+        letterSpacing: "0.08em", // Reduced for better readability
+        color: "#ffffff",
         backgroundImage: randomStyle.gradient,
         WebkitBackgroundClip: "text",
         WebkitTextFillColor: "transparent",
-        fontWeight: "400", // Slightly reduced weight
-        letterSpacing: "0.04em", // Slightly tighter spacing
-        mixBlendMode: "screen" // Helps with color blending
+        mixBlendMode: "screen", // Changed to normal for clearer text
+        pointerEvents: "none",
+        userSelect: "none",
+        whiteSpace: "nowrap",
+        zIndex: 30,
+        textTransform: "lowercase",
+        fontFamily: "var(--font-space-grotesk)",
+        filter: "brightness(0.9) contrast(1)", // Slightly enhance contrast
       }}
-      className="font-mono lowercase select-none"
     >
       <span
         style={{
           display: "inline-block",
-          whiteSpace: "nowrap",
           overflow: "hidden",
           width: "0",
-          animation: `typing ${typingDuration}s steps(${text.length}, end) forwards`,
-          textShadow: "0 0 10px rgba(248,250,252,0.4)" // Softer text shadow
+          animation: `typing ${typingDuration}s steps(${text.length}, end) forwards, fadeOut 1.5s ${fadeOutDelay}s forwards`,
+          WebkitFontSmoothing: "antialiased",
+          MozOsxFontSmoothing: "grayscale",
+          textRendering: "optimizeLegibility",
+          textShadow: "0 0 1px rgba(255,255,255,0.4)",
         }}
       >
         {text}
@@ -114,35 +164,56 @@ function CosmicWord({ text, top, left, onComplete, theme }: CosmicWordProps) {
 const CosmicTextOverlayComponent = () => {
   const { theme } = useTheme();
   const [words, setWords] = useState<WordData[]>([]);
+  const maxWords = window?.innerWidth < 768 ? 2 : 3;
 
   useEffect(() => {
     const spawnInterval = setInterval(() => {
       setWords(current => {
-        if (current.length >= 3) { // Increased max active words
+        if (current.length >= maxWords) {
           return current;
         }
-        const randomWord = messages[Math.floor(Math.random() * messages.length)];
-        const topPos = Math.floor(Math.random() * 80 + 10) + "%"; // Avoid edges
-        const leftPos = Math.floor(Math.random() * 80 + 10) + "%"; // Avoid edges
+
+        // Select a random corner zone
+        const zone = CORNER_ZONES[Math.floor(Math.random() * CORNER_ZONES.length)];
+        
+        // Add some randomness to the position within the corner zone
+        const xOffset = (Math.random() - 0.5) * 0.2; // Increased variation
+        const yOffset = (Math.random() - 0.5) * 0.2;
+        
+        const x = (zone.x + xOffset) * window.innerWidth;
+        const y = (zone.y + yOffset) * window.innerHeight;
+
+        // Convert to percentage
+        const topPos = (y / window.innerHeight) * 100 + "%";
+        const leftPos = (x / window.innerWidth) * 100 + "%";
+
         const newWord: WordData = {
           id: Date.now().toString() + Math.random().toString(),
-          text: randomWord,
+          text: messages[Math.floor(Math.random() * messages.length)],
           top: topPos,
-          left: leftPos
+          left: leftPos,
+          radius: Math.sqrt(x * x + y * y),
+          angle: Math.atan2(y, x)
         };
         return [...current, newWord];
       });
-    }, 4000); // Reduced spawn interval
-    return () => clearInterval(spawnInterval);
-  }, []);
+    }, window?.innerWidth < 768 ? 4000 : 3000);
 
-  // Handler to remove a word by id
-  const removeWord = (id: string) => {
-    setWords(current => current.filter(word => word.id !== id));
-  };
+    return () => clearInterval(spawnInterval);
+  }, [maxWords]);
 
   return (
-    <div className="pointer-events-none absolute inset-0">
+    <div className="pointer-events-none fixed inset-0 overflow-hidden z-20">
+      <style jsx global>{`
+        @keyframes typing {
+          from { width: 0 }
+          to { width: 100% }
+        }
+        @keyframes fadeOut {
+          0% { opacity: 1 }
+          100% { opacity: 0 }
+        }
+      `}</style>
       <AnimatePresence>
         {words.map(word => (
           <CosmicWord
@@ -150,7 +221,7 @@ const CosmicTextOverlayComponent = () => {
             text={word.text}
             top={word.top}
             left={word.left}
-            onComplete={() => removeWord(word.id)}
+            onComplete={() => setWords(current => current.filter(w => w.id !== word.id))}
             theme={theme === "dark" ? "dark" : "light"}
           />
         ))}

@@ -25,11 +25,13 @@ interface AudioAnalyzerContextType {
   togglePlayback: () => void
   trackCount: number
   isAudioLoaded: boolean
+  getAudioIntensity: () => number
+  initializeAudio: () => Promise<void>
 }
 
 const AudioAnalyzerContext = createContext<AudioAnalyzerContextType | null>(null);
 
-const FRAME_THROTTLE = 1000 / 30; // 30fps max for audio analysis
+const FRAME_THROTTLE = 1000 / 24; // Reduce to 24fps max for audio analysis
 
 export function AudioAnalyzerProvider({ children }: { children: ReactNode }) {
   const [audioData, setAudioData] = useState<Uint8Array | null>(null)
@@ -86,9 +88,10 @@ export function AudioAnalyzerProvider({ children }: { children: ReactNode }) {
     const dataArray = new Uint8Array(analyserRef.current.frequencyBinCount);
     analyserRef.current.getByteFrequencyData(dataArray);
     
-    // Only update if there's a significant change
+    // Only update if there's a significant change and reduce sampling
     if (!audioDataRef.current || hasSignificantChange(audioDataRef.current, dataArray)) {
       audioDataRef.current = dataArray;
+      // Only update state if significant change to reduce renders
       setAudioData(new Uint8Array(dataArray));
     }
     
@@ -97,8 +100,8 @@ export function AudioAnalyzerProvider({ children }: { children: ReactNode }) {
   }, []);
 
   const hasSignificantChange = (oldData: Uint8Array, newData: Uint8Array) => {
-    const step = Math.max(1, Math.floor(oldData.length / 4));
-    const threshold = 10;
+    const step = Math.max(1, Math.floor(oldData.length / 8)); // Increase step size for less frequent sampling
+    const threshold = 15; // Increase threshold to reduce updates
     let totalDiff = 0;
     
     for (let i = 0; i < oldData.length; i += step) {
@@ -213,7 +216,25 @@ export function AudioAnalyzerProvider({ children }: { children: ReactNode }) {
     }
   }, []);
 
+  // Optimize audio intensity calculation
+  const getAudioIntensity = useCallback(() => {
+    if (!audioDataRef.current) return 0;
+    
+    // Sample fewer frequencies for performance
+    const step = 4; // Sample every 4th frequency
+    let sum = 0;
+    let count = 0;
+    
+    for (let i = 0; i < audioDataRef.current.length; i += step) {
+      sum += audioDataRef.current[i];
+      count++;
+    }
+    
+    return (sum / count) / 255; // Normalize to 0-1 range
+  }, []);
+
   const contextValue = useMemo(() => ({
+    audioData,
     nextTrack,
     currentTrackIndex,
     volume,
@@ -221,8 +242,10 @@ export function AudioAnalyzerProvider({ children }: { children: ReactNode }) {
     isPlaying,
     togglePlayback,
     trackCount: AUDIO_TRACKS.length,
-    isAudioLoaded
-  }), [nextTrack, currentTrackIndex, volume, isPlaying, togglePlayback, isAudioLoaded, setAudioVolume]);
+    isAudioLoaded,
+    getAudioIntensity,
+    initializeAudio
+  }), [audioData, nextTrack, currentTrackIndex, volume, isPlaying, togglePlayback, isAudioLoaded, setAudioVolume, getAudioIntensity, initializeAudio]);
 
   useEffect(() => {
     if (hasInteractedRef.current) {
