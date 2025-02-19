@@ -164,7 +164,21 @@ function CosmicWord({ text, top, left, onComplete, theme }: CosmicWordProps) {
 const CosmicTextOverlayComponent = () => {
   const { theme } = useTheme();
   const [words, setWords] = useState<WordData[]>([]);
-  const maxWords = window?.innerWidth < 768 ? 2 : 3;
+  const [maxWords, setMaxWords] = useState(3);
+
+  // Handle window resize and initial maxWords setting
+  useEffect(() => {
+    const handleResize = () => {
+      setMaxWords(window.innerWidth < 768 ? 2 : 3);
+    };
+    
+    // Set initial value
+    handleResize();
+    
+    // Add resize listener
+    window.addEventListener('resize', handleResize);
+    return () => window.removeEventListener('resize', handleResize);
+  }, []);
 
   useEffect(() => {
     const spawnInterval = setInterval(() => {
@@ -177,7 +191,7 @@ const CosmicTextOverlayComponent = () => {
         const zone = CORNER_ZONES[Math.floor(Math.random() * CORNER_ZONES.length)];
         
         // Add some randomness to the position within the corner zone
-        const xOffset = (Math.random() - 0.5) * 0.2; // Increased variation
+        const xOffset = (Math.random() - 0.5) * 0.2;
         const yOffset = (Math.random() - 0.5) * 0.2;
         
         const x = (zone.x + xOffset) * window.innerWidth;
@@ -197,7 +211,7 @@ const CosmicTextOverlayComponent = () => {
         };
         return [...current, newWord];
       });
-    }, window?.innerWidth < 768 ? 4000 : 3000);
+    }, typeof window !== 'undefined' && window.innerWidth < 768 ? 4000 : 3000);
 
     return () => clearInterval(spawnInterval);
   }, [maxWords]);
