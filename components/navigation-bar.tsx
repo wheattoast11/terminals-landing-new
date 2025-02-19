@@ -607,14 +607,14 @@ function ExpandingParticleNetwork({ audioIntensity, colors }: { audioIntensity: 
   );
 }
 
-// Add gradient themes for each concept
+// Update the cardGradients with more transparent values
 const cardGradients: { [key: string]: string } = {
-  "/emergence": "from-cyan-500/[0.03] via-transparent to-transparent",
-  "/swarms": "from-emerald-500/[0.03] via-transparent to-transparent",
-  "/network": "from-violet-500/[0.03] via-transparent to-transparent",
-  "/experience": "from-amber-500/[0.03] via-transparent to-transparent",
-  "/understand": "from-blue-500/[0.03] via-transparent to-transparent",
-  "/enter": "from-teal-500/[0.03] via-transparent to-transparent"
+  "/emergence": "from-cyan-950/[0.02] via-transparent to-transparent",
+  "/swarms": "from-slate-900/[0.02] via-transparent to-transparent",
+  "/network": "from-blue-950/[0.02] via-transparent to-transparent",
+  "/experience": "from-gray-900/[0.02] via-transparent to-transparent",
+  "/understand": "from-slate-950/[0.02] via-transparent to-transparent",
+  "/enter": "from-blue-900/[0.02] via-transparent to-transparent"
 };
 
 export function NavigationBar() {
@@ -669,7 +669,7 @@ export function NavigationBar() {
         "hyperbolic manifold coordination for emergent intelligence",
         "vector-enabled state persistence with HNSW similarity search"
       ],
-      visual: "like the swirling patterns you see, new insights emerge from the network"
+      visual: "// like these swirling patterns, new insights naturally emerge from the network"
     },
     "/swarms": {
       title: "/digital-democracy",
@@ -680,11 +680,11 @@ export function NavigationBar() {
         "shape the future of embodied intelligence"
       ],
       technical: [
-        "decentralized agent swarms with adaptive optimization",
+        "decentralized multi-agent systems with adaptive optimization",
         "real-time performance monitoring with coherence metrics",
         "dynamic resource allocation with elastic scaling"
       ],
-      visual: "like the interconnected clusters you see, swarms form and re-form to achieve shared goals"
+      visual: "// like these interconnected clusters, swarms coalesce to achieve shared goals"
     },
     "/network": {
       title: "/evolutionary-fabric",
@@ -695,14 +695,14 @@ export function NavigationBar() {
         "build in an environment that adapts to any challenge"
       ],
       technical: [
-        "in memory MCP server with SSE transport",
-        "wasm vector database with real-time state synchronization",
+        "in-memory MCP server with SSE transport",
+        "wasm vector databases with real-time state synchronization",
         "adaptive consensus protocols for network stability"
       ],
-      visual: "each flowing line represents a secure connection in this global network"
+      visual: "// each flowing line represents a secure connection in this global network"
     },
     "/experience": {
-      title: "/merge-reality",
+      title: "/merge-realities",
       caption: "where digital and physical worlds unite",
       nonTechnical: [
         "transform memories and spaces into immersive 3D experiences",
@@ -714,7 +714,7 @@ export function NavigationBar() {
         "real-time 3D scene reconstruction from video and sensor data",
         "hybrid IRL/URL event orchestration with VR/AR capabilities"
       ],
-      visual: "watch as the boundaries between real and digital dissolve into seamless experience"
+      visual: "// watch as the boundaries between real and digital dissolve into seamless experience"
     },
     "/understand": {
       title: "/truth-realized",
@@ -729,7 +729,7 @@ export function NavigationBar() {
         "multi-agent simulation environment for robotic training",
         "advanced perception system with cross-modal understanding"
       ],
-      visual: "each connection represents a bridge between thought and action"
+      visual: "// every human and machine interaction resonates with continuous layers of meaning"
     },
     "/enter": {
       title: "/join-us",
@@ -740,11 +740,11 @@ export function NavigationBar() {
         "the world is ready. are you?"
       ],
       technical: [
-        "create your Zero instance",
-        "connect to the global Terminals network",
+        "create your eternal `zero` instance",
+        "connect to the global `terminals` network",
         "begin your journey into emergent intelligence"
       ],
-      visual: "Every point of light represents a creator like you, waiting to connect"
+      visual: "// every point of light represents a creator like you, waiting to connect"
     }
   };
 
@@ -803,7 +803,7 @@ export function NavigationBar() {
               <span className="text-sm sm:text-base font-mono opacity-50">/enter</span>
               {showSoonTooltip && (
                 <div 
-                  className="absolute -top-10 left-1/2 transform -translate-x-1/2 px-3 py-1.5 bg-background/95 border border-primary/20 rounded-lg text-xs font-mono shadow-lg"
+                  className="absolute -top+40 left-1/2 transform -translate-x-1/2 px-3 py-1.5 bg-background/95 border border-primary/20 rounded-lg text-xs font-mono shadow-lg"
                 >
                   <div className="absolute inset-0 rounded-lg bg-gradient-to-r from-primary/5 via-transparent to-primary/5" />
                   <div className="absolute inset-0 rounded-lg backdrop-blur-sm" />
@@ -863,32 +863,32 @@ export function NavigationBar() {
             <motion.div
               className={`${
                 isMobile ? 'w-full' : 'w-[1000px]'
-              } h-full rounded-2xl shadow-2xl overflow-hidden relative backdrop-blur-2xl ${
+              } h-full rounded-2xl shadow-2xl overflow-hidden relative backdrop-blur-xl ${
                 theme === 'dark'
-                  ? 'bg-gradient-to-br from-black/[0.95] via-gray-900/[0.92] to-black/[0.95] border border-gray-800/40'
-                  : 'bg-gradient-to-br from-white/[0.95] via-gray-50/[0.92] to-white/[0.95] border border-gray-200/40'
+                  ? 'bg-gradient-to-br from-black/[0.65] via-gray-950/[0.55] to-black/[0.65] border border-gray-800/20'
+                  : 'bg-gradient-to-br from-white/[0.75] via-gray-50/[0.65] to-white/[0.75] border border-gray-200/30'
               }`}
               initial={{ scale: 0.98 }}
               animate={{ scale: 1 }}
               exit={{ scale: 0.98 }}
               transition={{ duration: 0.2 }}
             >
-              {/* Enhanced gradient elements */}
+              {/* Enhanced gradient elements with more subtle colors */}
               <motion.div 
                 className={`absolute inset-0 bg-gradient-to-br ${cardGradients[hoveredItem] || cardGradients["/enter"]}`}
                 initial={{ opacity: 0 }}
-                animate={{ opacity: 0.8 }}
+                animate={{ opacity: 0.6 }}
                 exit={{ opacity: 0 }}
                 transition={{ duration: 0.2 }}
               />
               <motion.div 
                 className={`absolute left-0 top-0 bottom-0 w-[3px] bg-gradient-to-b ${
-                  hoveredItem === "/emergence" ? "from-transparent via-cyan-500/50 to-transparent" :
-                  hoveredItem === "/swarms" ? "from-transparent via-emerald-500/50 to-transparent" :
-                  hoveredItem === "/network" ? "from-transparent via-violet-500/50 to-transparent" :
-                  hoveredItem === "/experience" ? "from-transparent via-amber-500/50 to-transparent" :
-                  hoveredItem === "/understand" ? "from-transparent via-blue-500/50 to-transparent" :
-                  "from-transparent via-teal-500/50 to-transparent"
+                  hoveredItem === "/emergence" ? "from-transparent via-cyan-800/40 to-transparent" :
+                  hoveredItem === "/swarms" ? "from-transparent via-slate-700/40 to-transparent" :
+                  hoveredItem === "/network" ? "from-transparent via-blue-800/40 to-transparent" :
+                  hoveredItem === "/experience" ? "from-transparent via-gray-700/40 to-transparent" :
+                  hoveredItem === "/understand" ? "from-transparent via-slate-800/40 to-transparent" :
+                  "from-transparent via-blue-900/40 to-transparent"
                 }`}
                 initial={{ scaleY: 0 }}
                 animate={{ scaleY: 1 }}
@@ -896,20 +896,21 @@ export function NavigationBar() {
                 transition={{ duration: 0.4 }}
               />
 
-              <div className={`${isMobile ? 'flex-col' : 'flex'} h-full overflow-auto`}>
-                {/* Content Section */}
+              <div className={`${isMobile ? 'flex-col' : 'flex'} h-full overflow-auto relative z-10`}>
                 <div className={`${isMobile ? 'w-full' : 'w-[450px]'} p-8 sm:p-12 relative`}>
                   <div className="relative z-10 flex flex-col h-full">
-                    {/* Header Section */}
+                    {/* Add subtle backdrop blur to content sections */}
+                    <div className="absolute inset-0 backdrop-blur-md bg-black/10" />
+                    
                     <motion.div
-                      className="mb-8"
+                      className="mb-8 relative"
                       initial={{ y: -20, opacity: 0 }}
                       animate={{ y: 0, opacity: 1 }}
                       transition={{ duration: 0.4 }}
                     >
                       <h3 className={`text-4xl sm:text-5xl font-mono font-bold tracking-tight bg-clip-text text-transparent bg-gradient-to-r ${
                         theme === 'dark' 
-                          ? 'from-white via-white to-white/80'
+                          ? 'from-white/95 via-white/90 to-white/80'
                           : 'from-gray-900 via-gray-900 to-gray-700'
                       }`}>
                         {descriptions[hoveredItem]?.title}
@@ -921,24 +922,24 @@ export function NavigationBar() {
                       </p>
                     </motion.div>
 
-                    {/* Content Sections */}
-                    <div className="space-y-10">
-                      {/* Non-Technical Section */}
+                    <div className="space-y-10 relative">
+                      {/* Content sections with improved contrast */}
                       <motion.div
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ duration: 0.4, delay: 0.3 }}
                         className="relative z-10"
                       >
-                        <h4 className={`text-xl font-mono mb-5 flex items-center gap-4 relative ${
-                          theme === 'dark' ? 'text-white/90' : 'text-gray-800'
+                        <div className="absolute inset-0 backdrop-blur-sm bg-black/5 rounded-lg" />
+                        <h4 className={`relative text-xl font-mono mb-5 flex items-center gap-4 ${
+                          theme === 'dark' ? 'text-white/95' : 'text-gray-800'
                         }`}>
                           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-[2px]">
                             <div className="w-full h-full bg-gradient-to-r from-cyan-500/90 via-cyan-500/70 to-transparent" />
                           </div>
                           <span className="pl-20">For Creators</span>
                         </h4>
-                        <div className="space-y-4 pl-16">
+                        <div className="space-y-4 pl-16 relative">
                           {descriptions[hoveredItem]?.nonTechnical.map((point, index) => (
                             <motion.div
                               key={index}
@@ -949,7 +950,7 @@ export function NavigationBar() {
                             >
                               <span className="absolute -left-8 top-[10px] font-mono text-sm opacity-50">//</span>
                               <p className={`text-l leading-relaxed tracking-wide ${
-                                theme === 'dark' ? 'text-white/80' : 'text-gray-700'
+                                theme === 'dark' ? 'text-white/90' : 'text-gray-700'
                               }`}>
                                 {point}
                               </p>
@@ -958,22 +959,23 @@ export function NavigationBar() {
                         </div>
                       </motion.div>
 
-                      {/* Technical Section */}
+                      {/* Engineers section with similar styling */}
                       <motion.div
                         initial={{ x: -20, opacity: 0 }}
                         animate={{ x: 0, opacity: 1 }}
                         transition={{ duration: 0.4, delay: 0.5 }}
                         className="relative z-10"
                       >
-                        <h4 className={`text-xl font-mono mb-5 flex items-center gap-4 relative ${
-                          theme === 'dark' ? 'text-white/90' : 'text-gray-800'
+                        <div className="absolute inset-0 backdrop-blur-sm bg-black/5 rounded-lg" />
+                        <h4 className={`relative text-xl font-mono mb-5 flex items-center gap-4 ${
+                          theme === 'dark' ? 'text-white/95' : 'text-gray-800'
                         }`}>
                           <div className="absolute left-0 top-1/2 -translate-y-1/2 w-16 h-[2px]">
                             <div className="w-full h-full bg-gradient-to-r from-fuchsia-500/90 via-fuchsia-500/70 to-transparent" />
                           </div>
                           <span className="pl-20">For Engineers</span>
                         </h4>
-                        <div className="space-y-4 pl-16">
+                        <div className="space-y-4 pl-16 relative">
                           {descriptions[hoveredItem]?.technical.map((point, index) => (
                             <motion.div
                               key={index}
@@ -984,7 +986,7 @@ export function NavigationBar() {
                             >
                               <span className="absolute -left-8 top-[10px] font-mono text-sm opacity-50">//</span>
                               <p className={`text-l leading-relaxed tracking-wide ${
-                                theme === 'dark' ? 'text-white/80' : 'text-gray-700'
+                                theme === 'dark' ? 'text-white/90' : 'text-gray-700'
                               }`}>
                                 {point}
                               </p>
@@ -996,7 +998,6 @@ export function NavigationBar() {
                   </div>
                 </div>
 
-                {/* Visualization Section */}
                 <div className={`${isMobile ? 'w-full h-[350px]' : 'flex-1'} p-6 sm:p-8 relative flex flex-col`}>
                   <motion.div
                     initial={{ opacity: 0 }}
@@ -1004,7 +1005,7 @@ export function NavigationBar() {
                     transition={{ duration: 0.5 }}
                     className="flex-1 relative"
                   >
-                    <div className="absolute inset-0 backdrop-blur-sm bg-gradient-to-br from-background/20 via-transparent to-background/20" />
+                    <div className="absolute inset-0 backdrop-blur-[2px] bg-gradient-to-br from-background/10 via-transparent to-background/10" />
                     <div className="relative z-5 h-full">
                       <ConceptVisualization 
                         concept={hoveredItem} 
@@ -1013,7 +1014,6 @@ export function NavigationBar() {
                     </div>
                   </motion.div>
                   
-                  {/* Visual Connection Caption */}
                   <motion.div
                     className="mt-4 px-4"
                     initial={{ y: 20, opacity: 0 }}
@@ -1021,7 +1021,7 @@ export function NavigationBar() {
                     transition={{ duration: 0.3, delay: 0.7 }}
                   >
                     <p className={`text-xl italic font-light tracking-wide text-center ${
-                      theme === 'dark' ? 'text-white/60' : 'text-gray-600'
+                      theme === 'dark' ? 'text-white/70' : 'text-gray-600'
                     }`}>
                       {descriptions[hoveredItem]?.visual}
                     </p>
@@ -1029,7 +1029,6 @@ export function NavigationBar() {
                 </div>
               </div>
 
-              {/* Mobile Close Button */}
               {isMobile && (
                 <button
                   className="absolute top-4 right-4 p-2 rounded-full bg-primary/10 text-primary"
@@ -1059,7 +1058,6 @@ export function NavigationBar() {
             <nav className="relative h-full pt-20">
               <div className="h-full overflow-y-auto pb-safe">
                 <div className="flex flex-col space-y-4 px-4 min-h-full">
-                  {/* Navigation Items */}
                   <div className="flex-1 space-y-2">
                     {navItems.map((item) => (
                       <motion.button
@@ -1088,7 +1086,6 @@ export function NavigationBar() {
                     </motion.button>
                   </div>
 
-                  {/* Mobile Controls Section - Always visible at bottom */}
                   <motion.div
                     className="pt-6 border-t border-primary/10"
                     initial={{ opacity: 0 }}
@@ -1096,7 +1093,6 @@ export function NavigationBar() {
                     transition={{ duration: 0.3, delay: 0.2 }}
                   >
                     <div className="flex flex-col space-y-6 pb-8">
-                      {/* Audio Controls Section */}
                       <div className="px-4">
                         <h3 className="text-sm font-mono text-primary/60 mb-3">Audio Controls</h3>
                         <div className="bg-primary/5 rounded-lg p-4">
@@ -1104,7 +1100,6 @@ export function NavigationBar() {
                         </div>
                       </div>
 
-                      {/* Theme Toggle Section */}
                       <div className="px-4">
                         <h3 className="text-sm font-mono text-primary/60 mb-3">Theme</h3>
                         <div className="bg-primary/5 rounded-lg p-4 flex items-center justify-between">

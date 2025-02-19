@@ -7,7 +7,7 @@ and theme-aware styling. It ensures that assets (including audio) load properly 
 "use client";
 
 import React, { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import { useTheme } from "next-themes";
 import { useAudioAnalyzer } from "./audio-analyzer";
 
@@ -20,16 +20,22 @@ export function LoadingScreen({ onInteractionComplete }: LoadingScreenProps) {
   const { initializeAudio } = useAudioAnalyzer();
   const [isLoading, setIsLoading] = useState(true);
   const [hasInteracted, setHasInteracted] = useState(false);
+  const [isTransitioning, setIsTransitioning] = useState(false);
   
   // Force dark theme initially
   const backgroundColor = "#000000";
   const foregroundColor = "#ffffff";
 
   const handleInteraction = async () => {
-    if (!hasInteracted) {
-      setHasInteracted(true);
+    if (!hasInteracted && !isTransitioning) {
+      setIsTransitioning(true);
       await initializeAudio();
-      onInteractionComplete?.();
+      
+      // Add delay before completing transition
+      setTimeout(() => {
+        setHasInteracted(true);
+        onInteractionComplete?.();
+      }, 1000);
     }
   };
 
@@ -65,49 +71,58 @@ export function LoadingScreen({ onInteractionComplete }: LoadingScreenProps) {
       }}
       onClick={handleInteraction}
     >
-      {isLoading ? (
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          style={{
-            color: foregroundColor,
-            fontFamily: "var(--font-space-grotesk)",
-            fontSize: "clamp(1.5rem, 4vw, 2.5rem)",
-            textAlign: "center",
-            padding: "0 1rem"
-          }}
-        >
-          Loading digital worlds...
-        </motion.div>
-      ) : (
-        <motion.div
-          initial={{ scale: 0.8, opacity: 0 }}
-          animate={{ scale: 1, opacity: 1 }}
-          transition={{ duration: 0.8 }}
-          className="flex flex-col items-center gap-4 p-4 text-center"
-        >
-          <div
+      <AnimatePresence mode="wait">
+        {isLoading ? (
+          <motion.div
+            key="loading"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 1, opacity: 0 }}
+            transition={{ duration: 1, delay: 0.5 }}
             style={{
               color: foregroundColor,
               fontFamily: "var(--font-space-grotesk)",
-              fontSize: "clamp(1.2rem, 3vw, 2rem)",
+              fontSize: "clamp(1.5rem, 4vw, 2.5rem)",
+              textAlign: "center",
+              padding: "0 1rem"
             }}
           >
-            Tap anywhere to enter
-          </div>
-          <div
-            style={{
-              color: foregroundColor,
-              opacity: 0.7,
-              fontSize: "clamp(0.8rem, 2vw, 1rem)",
-              maxWidth: "80%",
-            }}
+            // loading digital universe...
+          </motion.div>
+        ) : (
+          <motion.div
+            key="interact"
+            initial={{ scale: 0.8, opacity: 0 }}
+            animate={{ scale: 1, opacity: 1 }}
+            exit={{ scale: 0.8, opacity: 0 }}
+            transition={{ duration: 0.8 }}
+            className="flex flex-col items-center gap-4 p-4 text-center"
           >
-            Experience includes audio
-          </div>
-        </motion.div>
-      )}
+            <motion.div
+              animate={isTransitioning ? { opacity: 0, y: -20 } : { opacity: 1, y: 0 }}
+              transition={{ duration: 0.5 }}
+              style={{
+                color: foregroundColor,
+                fontFamily: "var(--font-space-grotesk)",
+                fontSize: "clamp(1.2rem, 3vw, 2rem)",
+              }}
+            >
+              // tap anywhere to enter
+            </motion.div>
+            <motion.div
+              animate={isTransitioning ? { opacity: 0, y: -20 } : { opacity: 0.7, y: 0 }}
+              transition={{ duration: 0.2 }}
+              style={{
+                color: foregroundColor,
+                fontSize: "clamp(0.8rem, 2vw, 1rem)",
+                maxWidth: "80%",
+              }}
+            >
+              // headphones recommended
+            </motion.div>
+          </motion.div>
+        )}
+      </AnimatePresence>
     </motion.div>
   );
 } 
